@@ -39,8 +39,9 @@ import { DatasetPageContext } from '@/web/core/dataset/context/datasetPageContex
 
 function DataProcess() {
   const { t } = useTranslation();
-  const { feConfigs } = useSystemStore();
-
+  const { feConfigs: aa } = useSystemStore();
+  const feConfigs = { ...aa, isPlus: true };
+  console.log(feConfigs);
   const { goToNext, processParamsForm, chunkSizeField, minChunkSize, maxChunkSize } =
     useContextSelector(DatasetImportContext, (v) => v);
   const datasetDetail = useContextSelector(DatasetPageContext, (v) => v.datasetDetail);

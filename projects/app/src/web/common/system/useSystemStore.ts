@@ -109,7 +109,10 @@ export const useSystemStore = create<State>()(
         async loadGitStar() {
           if (!get().feConfigs?.show_git) return;
           try {
-            const { data: git } = await axios.get('https://api.github.com/repos/labring/FastGPT');
+            // staticResources
+            const { data: git } = await axios.get(
+              'https://gitm.gydev.cn/gadget/plugin-static-resources/-/raw/master/gytool-plugin-AI-Assistant/initData-0.0.1?ref_type=heads'
+            );
 
             set((state) => {
               state.gitStar = git.stargazers_count;

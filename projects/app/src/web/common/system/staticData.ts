@@ -11,7 +11,18 @@ export const clientInitData = async (
 }> => {
   try {
     const res = await getSystemInitData(useSystemStore.getState().initDataBufferId);
-    useSystemStore.getState().initStaticData(res);
+    console.log(res);
+
+    // TODO 目前修改初始化data的地方，直接修改 res 数据。后续需要修改为调用 useSystemStore.getState().initStaticData(res) 方法。
+    // {bufferId: '', feConfigs: {…}}
+    let newRes = {
+      ...res,
+      feConfigs: {
+        ...res.feConfigs,
+        systemTitle: '光宇出行'
+      }
+    };
+    useSystemStore.getState().initStaticData(newRes);
 
     return {
       feConfigs: res.feConfigs || useSystemStore.getState().feConfigs || {}

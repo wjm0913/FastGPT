@@ -151,15 +151,16 @@ const Login = ({ ChineseRedirectUrl }: { ChineseRedirectUrl: string }) => {
         userSelect={'none'}
         h={'100%'}
       >
-        {isPc && (
-          <Box position={'absolute'} top={'24px'} right={'50px'}>
-            <I18nLngSelector />
-          </Box>
-        )}
+        {/* 语言切换 */}
+        {/*{isPc && (*/}
+        {/*  <Box position={'absolute'} top={'24px'} right={'50px'}>*/}
+        {/*    <I18nLngSelector />*/}
+        {/*  </Box>*/}
+        {/*)}*/}
         <Flex
           flexDirection={'column'}
           w={['100%', '556px']}
-          h={['100%', '677px']}
+          h={['100%', '500px']}
           bg={'white'}
           px={['5vw', '88px']}
           py={['5vh', '64px']}
@@ -178,19 +179,19 @@ const Login = ({ ChineseRedirectUrl }: { ChineseRedirectUrl: string }) => {
               </Center>
             )}
           </Box>
-          {feConfigs?.concatMd && (
-            <Box
-              mt={8}
-              color={'primary.700'}
-              fontSize={'mini'}
-              fontWeight={'medium'}
-              cursor={'pointer'}
-              textAlign={'center'}
-              onClick={onOpen}
-            >
-              {t('common:support.user.login.can_not_login')}
-            </Box>
-          )}
+          {/*{feConfigs?.concatMd && (*/}
+          {/*  <Box*/}
+          {/*    mt={8}*/}
+          {/*    color={'primary.700'}*/}
+          {/*    fontSize={'mini'}*/}
+          {/*    fontWeight={'medium'}*/}
+          {/*    cursor={'pointer'}*/}
+          {/*    textAlign={'center'}*/}
+          {/*    onClick={onOpen}*/}
+          {/*  >*/}
+          {/*    {t('common:support.user.login.can_not_login')}*/}
+          {/*  </Box>*/}
+          {/*)}*/}
         </Flex>
 
         {isOpen && <CommunityModal onClose={onClose} />}
