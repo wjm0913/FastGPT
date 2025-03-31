@@ -54,12 +54,13 @@ function App({ Component, pageProps }: AppPropsWithLayout) {
 
   const router = useRouter();
   const showHead = !router?.pathname || !routesWithCustomHead.includes(router.pathname);
-
+  console.log({ title, feConfigs }, '-=-=-=-=-==--==-:::___');
   return (
     <>
       {showHead && (
         <NextHead
-          title={title}
+          // title={title}
+          title={'光宇出行AI'}
           desc={
             feConfigs?.systemDescription ||
             process.env.SYSTEM_DESCRIPTION ||

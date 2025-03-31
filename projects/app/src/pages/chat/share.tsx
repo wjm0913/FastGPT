@@ -241,7 +241,8 @@ const OutLink = (props: Props) => {
   return (
     <>
       <NextHead
-        title={props.appName || data?.app?.name || 'AI'}
+        // title={props.appName || data?.app?.name || 'AI'}
+        title={'光宇出行AI'}
         desc={props.appIntro || data?.app?.intro}
         icon={props.appAvatar || data?.app?.avatar}
       />

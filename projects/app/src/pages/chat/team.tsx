@@ -76,7 +76,7 @@ const Chat = ({ myApps }: { myApps: AppListItemType[] }) => {
       if (!appId || forbidLoadChat.current) return;
 
       const res = await getTeamChatInfo({ teamId, appId, chatId, teamToken });
-
+      console.log(res, '-=-=-=-=-=-=-=-==79797979');
       setChatBoxData(res);
 
       // reset chat records
