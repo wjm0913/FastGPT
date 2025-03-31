@@ -15,7 +15,7 @@ const Empty = () => {
       <Card p={4} mb={10} minH={'200px'}>
         <Markdown source={versionIntro} />
       </Card>
-      <Card p={4} minH={'600px'}>
+      <Card p={4} minH={'150px'}>
         <Markdown source={chatProblem} />
       </Card>
     </Box>

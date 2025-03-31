@@ -602,19 +602,19 @@ const Other = ({ onOpenContact }: { onOpenContact: () => void }) => {
   return (
     <Box>
       <Grid gridGap={4} mt={3}>
-        {feConfigs?.docUrl && (
-          <Link
-            href={getDocPath('/docs/intro')}
-            target="_blank"
-            textDecoration={'none !important'}
-            {...ButtonStyles}
-          >
-            <MyIcon name={'common/courseLight'} w={'18px'} color={'myGray.600'} />
-            <Box ml={2} flex={1}>
-              {t('account_info:help_document')}
-            </Box>
-          </Link>
-        )}
+        {/*{feConfigs?.docUrl && (*/}
+        {/*  <Link*/}
+        {/*    href={getDocPath('/docs/intro')}*/}
+        {/*    target="_blank"*/}
+        {/*    textDecoration={'none !important'}*/}
+        {/*    {...ButtonStyles}*/}
+        {/*  >*/}
+        {/*    <MyIcon name={'common/courseLight'} w={'18px'} color={'myGray.600'} />*/}
+        {/*    <Box ml={2} flex={1}>*/}
+        {/*      {t('account_info:help_document')}*/}
+        {/*    </Box>*/}
+        {/*  </Link>*/}
+        {/*)}*/}
 
         {!isPc &&
           feConfigs?.navbarItems
@@ -627,14 +627,14 @@ const Other = ({ onOpenContact }: { onOpenContact: () => void }) => {
                 </Box>
               </Flex>
             ))}
-        {feConfigs?.concatMd && (
-          <Flex onClick={onOpenContact} {...ButtonStyles}>
-            <MyIcon name={'modal/concat'} w={'18px'} color={'myGray.600'} />
-            <Box ml={2} flex={1}>
-              {t('account_info:contact_us')}
-            </Box>
-          </Flex>
-        )}
+        {/*{feConfigs?.concatMd && (*/}
+        {/*  <Flex onClick={onOpenContact} {...ButtonStyles}>*/}
+        {/*    <MyIcon name={'modal/concat'} w={'18px'} color={'myGray.600'} />*/}
+        {/*    <Box ml={2} flex={1}>*/}
+        {/*      {t('account_info:contact_us')}*/}
+        {/*    </Box>*/}
+        {/*  </Flex>*/}
+        {/*)}*/}
         {feConfigs?.show_workorder &&
           teamPlanStatus &&
           teamPlanStatus.standard?.currentSubLevel !== StandardSubLevelEnum.free && (
