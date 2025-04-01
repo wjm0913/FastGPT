@@ -13,9 +13,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!requestPath) {
       throw new Error('url is empty');
     }
-    if (!FastGPTProUrl) {
-      throw new Error(`未配置商业版链接: ${path}`);
-    }
+
+    console.log({ req, res }, '------NextApiRequest----req, resreq, res::::---');
+    // if (!FastGPTProUrl) {
+    //   throw new Error(`未配置商业版链接1111: ${path}`);
+    // }
 
     const parsedUrl = new URL(FastGPTProUrl);
     delete req.headers?.rootkey;
@@ -44,6 +46,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       res.end();
     });
   } catch (error) {
+    console.log(error);
     jsonRes(res, {
       code: 500,
       error

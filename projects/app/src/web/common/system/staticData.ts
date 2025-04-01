@@ -19,7 +19,7 @@ export const clientInitData = async (
       ...res,
       feConfigs: {
         ...res.feConfigs,
-        systemTitle: '光宇出行'
+        systemTitle: '光宇出行AI问答系统'
       }
     };
     useSystemStore.getState().initStaticData(newRes);

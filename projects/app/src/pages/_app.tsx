@@ -60,7 +60,7 @@ function App({ Component, pageProps }: AppPropsWithLayout) {
       {showHead && (
         <NextHead
           // title={title}
-          title={'光宇出行AI'}
+          title={'光宇出行AI问答'}
           desc={
             feConfigs?.systemDescription ||
             process.env.SYSTEM_DESCRIPTION ||

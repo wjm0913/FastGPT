@@ -125,6 +125,7 @@ export async function uploadFileFromBase64Img({
     }
   });
 
+  // @ts-ignore
   const { stream: readStream, encoding } = await stream2Encoding(readableStream);
 
   // Add default metadata
@@ -245,6 +246,7 @@ export const readFileContentFromMongo = async ({
   const extension = parseFileExtensionFromUrl(file?.filename);
 
   const start = Date.now();
+  // @ts-ignore
   const fileBuffers = await gridFsStream2Buffer(fileStream);
   addLog.debug('get file buffer', { time: Date.now() - start });
 

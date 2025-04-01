@@ -29,7 +29,8 @@ const RegisterForm = ({ setPageType, loginSuccess }: Props) => {
   const { toast } = useToast();
   const { t } = useTranslation();
 
-  const { feConfigs } = useSystemStore();
+  const { feConfigs: mirrorFeConfigs } = useSystemStore();
+  let feConfigs = { ...mirrorFeConfigs, register_method: ['email'] };
   const {
     register,
     handleSubmit,

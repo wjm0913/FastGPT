@@ -6,6 +6,7 @@ let jieba: Jieba | undefined;
   const dictData = await import('./dict.json');
   // @ts-ignore
   const dictBuffer = Buffer.from(dictData.dict?.replace(/\\n/g, '\n'), 'utf-8');
+  // @ts-ignore
   jieba = Jieba.withDict(dictBuffer);
 })();
 
