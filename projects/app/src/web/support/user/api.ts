@@ -47,6 +47,23 @@ export const postRegister = ({
     password: hashStr(password)
   });
 
+export const postRegister2 = ({
+  username,
+  password,
+  code,
+  inviterId,
+  bd_vid,
+  fastgpt_sem
+}: AccountRegisterBody) =>
+  POST<ResLogin>(`/support/user/account/register`, {
+    username,
+    code,
+    inviterId,
+    bd_vid,
+    fastgpt_sem,
+    password: hashStr(password)
+  });
+
 export const postFindPassword = ({
   username,
   code,
@@ -108,3 +125,8 @@ export const GetSearchUserGroupOrg = (
 ) => GET<SearchResult>('/proApi/support/user/search', { searchKey, ...options });
 
 export const ExportMembers = () => GET<{ csv: string }>('/proApi/support/user/team/member/export');
+
+export const sendEmailCodeFunc = ({ email }: { email: string }) =>
+  POST('/support/user/account/sendEmailCode', {
+    email
+  });

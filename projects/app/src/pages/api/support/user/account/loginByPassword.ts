@@ -12,7 +12,7 @@ import { UserErrEnum } from '@fastgpt/global/common/error/code/user';
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { username, password } = req.body as PostLoginProps;
-
+  console.log(username, password, '-=-=-=--=-=::::');
   if (!username || !password) {
     return Promise.reject(CommonErrEnum.invalidParams);
   }

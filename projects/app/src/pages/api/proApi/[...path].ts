@@ -14,12 +14,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       throw new Error('url is empty');
     }
 
-    console.log({ req, res }, '------NextApiRequest----req, resreq, res::::---');
+    // console.log({ req, res }, '------NextApiRequest----req, resreq, res::::---');
     // if (!FastGPTProUrl) {
     //   throw new Error(`未配置商业版链接1111: ${path}`);
     // }
 
+    console.log(FastGPTProUrl, '-----::::-=-=-=-');
     const parsedUrl = new URL(FastGPTProUrl);
+    console.log(parsedUrl, '-----::::-=-=-=-');
     delete req.headers?.rootkey;
 
     const requestResult = request({

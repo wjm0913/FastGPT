@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { sendAuthCode } from '@/web/support/user/api';
+import { postRegister2, sendAuthCode, sendEmailCodeFunc } from '@/web/support/user/api';
 import { UserAuthTypeEnum } from '@fastgpt/global/support/user/auth/constants';
 import { useTranslation } from 'next-i18next';
 import { useSystemStore } from '@/web/common/system/useSystemStore';
@@ -74,14 +74,19 @@ export const useSendCode = ({ type }: { type: `${UserAuthTypeEnum}` }) => {
             : {
                 color: 'primary.700',
                 cursor: 'pointer',
-                onClick: () => {
+                onClick: async () => {
                   if (!username) {
                     toast({
                       status: 'warning',
                       title: t('common:error.username_empty')
                     });
                   } else {
-                    onOpenCodeAuthModal();
+                    console.log(111);
+                    let aa = await sendEmailCodeFunc({
+                      // email: 'weijianming@costrip.cn'
+                      email: 'zhangxiaochen@costrip.cn'
+                    });
+                    console.log(aa);
                   }
                 }
               })}

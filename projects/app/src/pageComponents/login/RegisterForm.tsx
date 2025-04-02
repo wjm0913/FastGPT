@@ -2,7 +2,7 @@ import React, { Dispatch } from 'react';
 import { FormControl, Box, Input, Button } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
 import { LoginPageTypeEnum, PasswordRule } from '@/web/support/user/login/constants';
-import { postRegister } from '@/web/support/user/api';
+import { postRegister, postRegister2 } from '@/web/support/user/api';
 import { useSendCode } from '@/web/support/user/hooks/useSendCode';
 import type { ResLogin } from '@/global/support/api/userRes';
 import { useToast } from '@fastgpt/web/hooks/useToast';
@@ -47,7 +47,7 @@ const RegisterForm = ({ setPageType, loginSuccess }: Props) => {
   const { runAsync: onclickRegister, loading: requesting } = useRequest2(
     async ({ username, password, code }: RegisterType) => {
       loginSuccess(
-        await postRegister({
+        await postRegister2({
           username,
           code,
           password,

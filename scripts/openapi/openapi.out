@@ -1196,9 +1196,16 @@
   },
   {
     "url": "/support/user/account/loginByPassword",
-    "path": "projects/app/src/pages/api/support/user/account/loginByPassword.ts",
+    "path": "projects/app/src/pages/
+    api/support/user/account/loginByPassword.ts",
     "method": "GET"
   },
+   {
+      "url": "/support/user/account/register",
+      "path": "projects/app/src/pages/
+      api/support/user/account/loginByPassword.ts",
+      "method": "POST"
+    },
   {
     "url": "/support/user/account/loginout",
     "path": "projects/app/src/pages/api/support/user/account/loginout.ts",
