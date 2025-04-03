@@ -35,7 +35,8 @@ const AccountContainer = ({
   const { t } = useTranslation();
   const theme = useTheme();
   const { userInfo, setUserInfo } = useUserStore();
-  const { feConfigs, systemVersion } = useSystemStore();
+  const { feConfigs: newFeConfigs, systemVersion } = useSystemStore();
+  let feConfigs = { ...newFeConfigs, isPlus: true };
   const router = useRouter();
   const { isPc } = useSystem();
 
@@ -72,11 +73,11 @@ const AccountContainer = ({
           }
         ]
       : []),
-    {
-      icon: 'common/thirdParty',
-      label: t('account:third_party'),
-      value: TabEnum.thirdParty
-    },
+    // {
+    //   icon: 'common/thirdParty',
+    //   label: t('account:third_party'),
+    //   value: TabEnum.thirdParty
+    // },
     {
       icon: 'common/model',
       label: t('account:model_provider'),

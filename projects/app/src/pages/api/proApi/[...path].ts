@@ -48,10 +48,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       res.end();
     });
   } catch (error) {
-    console.log(error);
+    console.log(error, '-----::::-=-=-=-wjkjkjkjkjkjkjk');
     jsonRes(res, {
       code: 500,
-      error
+      error: '敬请期待'
     });
   }
 }
