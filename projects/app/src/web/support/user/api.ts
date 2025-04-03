@@ -55,7 +55,7 @@ export const postRegister2 = ({
   bd_vid,
   fastgpt_sem
 }: AccountRegisterBody) =>
-  POST<ResLogin>(`/support/user/account/register`, {
+  POST<{ success: boolean; message: string }>(`/support/user/account/register`, {
     username,
     code,
     inviterId,
@@ -127,6 +127,6 @@ export const GetSearchUserGroupOrg = (
 export const ExportMembers = () => GET<{ csv: string }>('/proApi/support/user/team/member/export');
 
 export const sendEmailCodeFunc = ({ email }: { email: string }) =>
-  POST('/support/user/account/sendEmailCode', {
+  POST<{ success: boolean; message: string }>('/support/user/account/sendEmailCode', {
     email
   });

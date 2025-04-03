@@ -36,6 +36,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     username,
     password
   });
+  console.log(user, '-=-=-=useruser::::---');
 
   if (!user) {
     return Promise.reject(UserErrEnum.account_psw_error);
@@ -45,6 +46,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     tmbId: user?.lastLoginTmbId,
     userId: user._id
   });
+  console.log(userDetail, '-=-=-=userDetail::::---');
 
   MongoUser.findByIdAndUpdate(user._id, {
     lastLoginTmbId: userDetail.team.tmbId

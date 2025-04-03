@@ -6,29 +6,53 @@ import { useIPFrequencyLimit } from '@fastgpt/service/common/middle/reqFrequency
 import { CommonErrEnum } from '@fastgpt/global/common/error/code/common';
 import { UserErrEnum } from '@fastgpt/global/common/error/code/user';
 import { jsonRes } from '@fastgpt/service/common/response';
+import { MongoEmailVerification } from './sendEmailCode'; // 导入验证码模型
+import { MongoTeam } from '@fastgpt/service/support/user/team/teamSchema';
+import { MongoTeamMember } from '@fastgpt/service/support/user/team/teamMemberSchema';
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
-  console.log(11111);
-  let newUser = null;
   try {
-    const { username, password, avatar, timezone } = req.body;
-    console.log(
-      username,
-      password,
-      avatar,
-      timezone,
-      '::::______username, password, avatar, timezone______'
-    );
+    const { username, password, timezone, code: verificationCode } = req.body;
+    console.log(username, password, timezone, verificationCode, '::::______注册信息______');
 
     // 1. 参数校验
-    if (!username || !password) {
+    if (!username || !password || !verificationCode) {
       return jsonRes(res, {
         code: 400,
         error: CommonErrEnum.invalidParams
       });
     }
 
-    // 2. 检查用户是否已存在
+    // 2. 验证邮箱验证码
+    let verificationValid = false;
+
+    try {
+      // 查询验证码
+      const verification = await MongoEmailVerification.findOne({ email: username });
+      console.log(verification);
+      // 检查验证码是否正确
+      if (verification && verification?.code === verificationCode) {
+        verificationValid = true;
+        // 验证成功后删除验证码记录
+        await MongoEmailVerification.deleteOne({ email: username });
+      }
+    } catch (error) {
+      console.error('验证验证码失败:', error);
+      return jsonRes(res, {
+        code: 500,
+        error: '系统错误，请稍后再试'
+      });
+    }
+
+    // 验证码无效时返回错误
+    if (!verificationValid) {
+      return jsonRes(res, {
+        code: 400,
+        error: '验证码错误或已过期'
+      });
+    }
+
+    // 3. 检查用户是否已存在
     const existUser = await MongoUser.findOne({ username });
     if (existUser) {
       return jsonRes(res, {
@@ -37,21 +61,33 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       });
     }
 
-    // 3. 创建用户
-    newUser = await MongoUser.create({
+    // 4. 创建用户
+    let newUser = await MongoUser.create({
       username,
       password,
       status: UserStatusEnum.active,
-      avatar,
       timezone,
       createTime: new Date(),
       lastedLoginTime: new Date()
     });
-    console.log('新用户ID:', newUser._id);
+
+    const defaultTeam = await MongoTeam.findOne({ name: 'My Team' });
+    console.log(defaultTeam);
+    // 将新用户添加到默认团队
+    const newTeamMember = await MongoTeamMember.create({
+      teamId: defaultTeam?._id,
+      userId: newUser._id,
+      role: 'admin',
+      status: 'active',
+      defaultTeam: true
+    });
+    console.log(newTeamMember);
+
     // 返回用户信息
     return jsonRes(res, {
       data: {
-        newUser
+        success: true,
+        message: '注册成功'
       }
     });
   } catch (error) {

@@ -22,7 +22,7 @@ import { refreshSourceAvatar } from '../../../common/file/image/controller';
 async function getTeamMember(match: Record<string, any>): Promise<TeamTmbItemType> {
   const tmb = await MongoTeamMember.findOne(match).populate<{ team: TeamSchema }>('team').lean();
   if (!tmb) {
-    return Promise.reject('member not exist');
+    return Promise.reject('member not exist111');
   }
 
   const Per = await getResourcePermission({

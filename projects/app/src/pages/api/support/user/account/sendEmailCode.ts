@@ -23,7 +23,11 @@ const EmailVerificationSchema = new Schema(
 );
 
 // 使用项目的标准模型创建方式
-export const MongoEmailVerification = getMongoModel('email_verifications', EmailVerificationSchema);
+export const MongoEmailVerification = getMongoModel<{
+  email: string;
+  code: number;
+  createdAt: string;
+}>('email_verifications', EmailVerificationSchema);
 
 // 配置邮件发送服务
 const transporter = nodemailer.createTransport({
@@ -90,15 +94,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       console.log('验证码保存成功');
     } catch (dbError) {
       console.error('保存验证码到数据库失败:', dbError);
-      // 返回特殊状态以便前端知道需要使用测试验证码
       return jsonRes(res, {
-        data: {
-          success: true,
-          message: '验证码已发送至邮箱',
-          fallback: true,
-          // 仅在开发环境返回验证码
-          code: process.env.NODE_ENV !== 'production' ? verificationCode : undefined
-        }
+        code: 500,
+        error: '验证码生成失败，请稍后再试'
       });
     }
 
@@ -122,24 +120,22 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       `
     };
 
-    // 尝试发送邮件，无论在什么环境
+    // 发送邮件
     try {
-      console.log(process.env.EMAIL_HOST);
-      console.log(process.env.EMAIL_PORT);
       await transporter.sendMail(mailOptions);
       console.log('邮件发送成功');
     } catch (emailError) {
       console.error('发送邮件失败:', emailError);
-      // 邮件发送失败不阻止验证码功能
-      // 通过控制台输出的验证码仍可使用
+      return jsonRes(res, {
+        code: 500,
+        error: '验证码发送失败，请稍后再试'
+      });
     }
 
     return jsonRes(res, {
       data: {
         success: true,
         message: '验证码已发送至邮箱'
-        // 仅在开发环境返回验证码
-        // code: process.env.NODE_ENV !== 'production' ? verificationCode : undefined
       }
     });
   } catch (error) {

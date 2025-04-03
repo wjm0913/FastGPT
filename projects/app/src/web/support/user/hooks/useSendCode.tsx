@@ -81,12 +81,16 @@ export const useSendCode = ({ type }: { type: `${UserAuthTypeEnum}` }) => {
                       title: t('common:error.username_empty')
                     });
                   } else {
-                    console.log(111);
-                    let aa = await sendEmailCodeFunc({
-                      // email: 'weijianming@costrip.cn'
-                      email: 'zhangxiaochen@costrip.cn'
+                    let data = await sendEmailCodeFunc({
+                      email: username
                     });
-                    console.log(aa);
+                    if (data?.success) {
+                      setCodeCountDown(60);
+                      toast({
+                        status: 'success',
+                        title: '验证码已发送'
+                      });
+                    }
                   }
                 }
               })}
