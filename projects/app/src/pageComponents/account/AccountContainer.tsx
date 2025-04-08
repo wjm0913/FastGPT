@@ -22,7 +22,8 @@ export enum TabEnum {
   'apikey' = 'apikey',
   'loginout' = 'loginout',
   'team' = 'team',
-  'model' = 'model'
+  'model' = 'model',
+  'tag' = 'tag'
 }
 
 const AccountContainer = ({
@@ -82,6 +83,11 @@ const AccountContainer = ({
       icon: 'common/model',
       label: t('account:model_provider'),
       value: TabEnum.model
+    },
+    {
+      icon: 'common/thirdParty',
+      label: '权限标签',
+      value: TabEnum.tag
     },
     ...(feConfigs?.show_promotion && userInfo?.team?.permission.isOwner
       ? [
@@ -161,12 +167,12 @@ const AccountContainer = ({
               value={currentTab}
               onChange={setCurrentTab}
             />
-            <Flex alignItems={'center'}>
-              <Box w={'8px'} h={'8px'} borderRadius={'50%'} bg={'#67c13b'} />
-              <Box fontSize={'md'} ml={2}>
-                V{systemVersion}
-              </Box>
-            </Flex>
+            {/*<Flex alignItems={'center'}>*/}
+            {/*  <Box w={'8px'} h={'8px'} borderRadius={'50%'} bg={'#67c13b'} />*/}
+            {/*  <Box fontSize={'md'} ml={2}>*/}
+            {/*    V{systemVersion}*/}
+            {/*  </Box>*/}
+            {/*</Flex>*/}
           </Flex>
         ) : (
           <Box mb={3}>

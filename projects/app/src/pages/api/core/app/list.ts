@@ -39,7 +39,7 @@ export type ListAppBody = {
 
 async function handler(req: ApiRequestProps<ListAppBody>): Promise<AppListItemType[]> {
   const { parentId, type, getRecentlyChat, searchKey } = req.body;
-
+  console.log(parentId, type, getRecentlyChat, searchKey, '21212');
   // Auth user permission
   const [{ tmbId, teamId, permission: teamPer }] = await Promise.all([
     authUserPer({

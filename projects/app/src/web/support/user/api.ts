@@ -130,3 +130,70 @@ export const sendEmailCodeFunc = ({ email }: { email: string }) =>
   POST<{ success: boolean; message: string }>('/support/user/account/sendEmailCode', {
     email
   });
+
+/**
+ * 获取用户标签信息
+ * @returns 用户标签和权限信息
+ */
+export const getUserTags = () =>
+  GET<{
+    tagInfo: {
+      isOwner: boolean;
+      isAdmin: boolean;
+      hasAdminAccess: boolean;
+      canCreateContent: boolean;
+      canEditTeam: boolean;
+      canInviteUsers: boolean;
+      tagsList: string[];
+    };
+    isFirstTime: boolean;
+    availableTags: string[];
+  }>('/support/user/account/getUserId2');
+
+/**
+ * 获取指定用户的标签信息
+ * @param userId 目标用户ID
+ * @returns 用户标签和权限信息
+ */
+export const getUserTagsById = (userId: string) =>
+  GET<{
+    tagInfo: {
+      isOwner: boolean;
+      isAdmin: boolean;
+      hasAdminAccess: boolean;
+      canCreateContent: boolean;
+      canEditTeam: boolean;
+      canInviteUsers: boolean;
+      tagsList: string[];
+    };
+    isFirstTime: boolean;
+    availableTags: string[];
+  }>('/support/user/account/getUserId2', { userId });
+
+/**
+ * 更新用户标签
+ * @param data 更新参数
+ */
+export const updateUserTags = (data: {
+  targetUserId?: string; // 要更新的用户ID，不提供则更新当前用户
+  tags: string[]; // 新的标签数组
+}) =>
+  POST<{
+    userId: string;
+    tags: string[];
+    updated: boolean;
+  }>('/support/user/account/getUserId2', data);
+
+/**
+ * 获取所有用户及其标签信息 (管理员专用)
+ * @returns 所有用户及其标签信息
+ */
+export const getAllUsersWithTags = () =>
+  GET<{
+    users: Array<{
+      userId: string;
+      username: string;
+      tags: string[];
+    }>;
+    availableTags: string[];
+  }>('/support/user/account/getUserId2', { allUsers: true });

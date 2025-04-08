@@ -9,6 +9,7 @@ import { jsonRes } from '@fastgpt/service/common/response';
 import { MongoEmailVerification } from './sendEmailCode'; // 导入验证码模型
 import { MongoTeam } from '@fastgpt/service/support/user/team/teamSchema';
 import { MongoTeamMember } from '@fastgpt/service/support/user/team/teamMemberSchema';
+import { MongoUsersId2 } from './getUserId2'; // 导入用户ID表模型
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
@@ -77,11 +78,41 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     const newTeamMember = await MongoTeamMember.create({
       teamId: defaultTeam?._id,
       userId: newUser._id,
-      role: 'admin',
+      role: 'owner',
       status: 'active',
       defaultTeam: true
     });
     console.log(newTeamMember);
+
+    // 5. 创建users_id_2记录，并设置初始标签为"owner"
+    try {
+      const usersId2Record = await MongoUsersId2.create({
+        userId: newUser._id.toString(), // 确保userId是字符串
+        username: username,
+        tags: ['admin'], // 设置初始标签为"owner"
+        role: 'owner', // 设置初始角色为管理员
+        permissions: {
+          canCreateApp: true,
+          canManageTeam: true,
+          canInviteMembers: true
+        },
+        teamId: defaultTeam?._id?.toString(), // 确保teamId是字符串
+        tmbId: newTeamMember?._id?.toString(), // 确保tmbId是字符串
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        extra: {
+          registrationSource: req.headers.referer || 'direct'
+        }
+      });
+
+      console.log('创建users_id_2记录成功:', {
+        userId: usersId2Record.userId,
+        tags: usersId2Record.tags
+      });
+    } catch (error) {
+      console.error('创建users_id_2记录失败:', error);
+      // 继续执行，不中断注册流程
+    }
 
     // 返回用户信息
     return jsonRes(res, {
