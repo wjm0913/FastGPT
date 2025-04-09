@@ -229,6 +229,7 @@ const MyApps = () => {
               ? folderDetail.permission.hasWritePer && folderDetail?.type !== AppTypeEnum.httpPlugin
               : userInfo?.team.permission.hasWritePer) && (
               <MyMenu
+                type="app"
                 size="md"
                 Button={
                   <Button variant={'primary'} leftIcon={<AddIcon />}>

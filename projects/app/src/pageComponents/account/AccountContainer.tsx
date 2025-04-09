@@ -9,6 +9,7 @@ import SideTabs from '@/components/SideTabs';
 import LightRowTabs from '@fastgpt/web/components/common/Tabs/LightRowTabs';
 import { useTranslation } from 'next-i18next';
 import { useSystem } from '@fastgpt/web/hooks/useSystem';
+import useGetUserTag from '@/utils/useGetUserTag';
 
 export enum TabEnum {
   'info' = 'info',
@@ -44,6 +45,7 @@ const AccountContainer = ({
   const currentTab = useMemo(() => {
     return router.pathname.split('/').pop() as TabEnum;
   }, [router.pathname]);
+  const { hasTag } = useGetUserTag('applicationCreation');
 
   const tabList = useRef([
     {
@@ -79,11 +81,17 @@ const AccountContainer = ({
     //   label: t('account:third_party'),
     //   value: TabEnum.thirdParty
     // },
-    {
-      icon: 'common/model',
-      label: t('account:model_provider'),
-      value: TabEnum.model
-    },
+
+    ...(hasTag
+      ? [
+          {
+            icon: 'common/model',
+            label: t('account:model_provider'),
+            value: TabEnum.model
+          }
+        ]
+      : []),
+
     {
       icon: 'common/thirdParty',
       label: '权限标签',
@@ -98,7 +106,7 @@ const AccountContainer = ({
           }
         ]
       : []),
-    ...(userInfo?.team?.permission.hasManagePer
+    ...(hasTag && userInfo?.team?.permission.hasManagePer
       ? [
           {
             icon: 'key',

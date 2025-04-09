@@ -299,6 +299,7 @@ function List() {
                           }}
                         >
                           <MyMenu
+                            type="dataset"
                             Button={
                               <Box w={'22px'} h={'22px'}>
                                 <MyIcon

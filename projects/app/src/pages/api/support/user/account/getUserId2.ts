@@ -26,7 +26,9 @@ export enum UserTagEnum {
   REPORT_ACCESS = 'report_access', // 报表访问权限
   API_ACCESS = 'api_access', // API访问权限
 
-  APPLICATIONCREATION = 'applicationCreation'
+  APPLICATIONCREATION = 'applicationCreation',
+  // 知识库创建
+  KNOWLEDGE_BASE_CREATE = 'knowledgeBaseCreate'
 }
 
 // 简化的Schema，只保留必要字段

@@ -29,6 +29,7 @@ export type Props = {
   Button: React.ReactNode;
   trigger?: 'hover' | 'click';
   size?: MenuSizeType;
+  type?: string;
 
   placement?: PlacementWithLogical;
   menuList: {
@@ -198,8 +199,10 @@ const MyMenu = ({
   offset,
   Button,
   menuList,
-  placement = 'bottom-start'
+  placement = 'bottom-start',
+  type
 }: Props) => {
+  console.log(type, menuList, '-=-=-=-==:::::SSS');
   const { isPc } = useSystem();
   const ref = useRef<HTMLDivElement>(null);
   const closeTimer = useRef<any>();
@@ -219,7 +222,8 @@ const MyMenu = ({
     if (typeof width === 'number') return [-width / 2, 5];
     return [0, 5];
   }, [offset]);
-  const { hasTag } = useGetUserTag('applicationCreation');
+  const { hasTag: applicationCreationTag } = useGetUserTag('applicationCreation');
+  const { hasTag: knowledgeBaseCreateTag } = useGetUserTag('knowledgeBaseCreate');
   const { toast } = useToast();
 
   return (
@@ -236,18 +240,32 @@ const MyMenu = ({
       <Box
         ref={ref}
         onMouseEnter={() => {
-          if (hasTag) {
-            if (formatTrigger === 'hover') {
-              setIsOpen(true);
+          console.log(type);
+          if (type === 'dataset') {
+            if (knowledgeBaseCreateTag) {
+              if (formatTrigger === 'hover') {
+                setIsOpen(true);
+              }
+              clearTimeout(closeTimer.current);
+              return;
             }
-            clearTimeout(closeTimer.current);
-            return;
+            toast({
+              status: 'warning',
+              title: '知识库暂无权限'
+            });
+          } else {
+            if (applicationCreationTag) {
+              if (formatTrigger === 'hover') {
+                setIsOpen(true);
+              }
+              clearTimeout(closeTimer.current);
+              return;
+            }
+            toast({
+              status: 'warning',
+              title: '工作台暂无权限'
+            });
           }
-
-          toast({
-            status: 'warning',
-            title: '暂无权限'
-          });
         }}
         onMouseLeave={() => {
           if (formatTrigger === 'hover') {
