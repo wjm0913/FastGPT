@@ -36,6 +36,8 @@ import { useSystem } from '@fastgpt/web/hooks/useSystem';
 import { useChatStore } from '@/web/core/chat/context/useChatStore';
 import { RequireOnlyOne } from '@fastgpt/global/common/type/utils';
 import UserBox from '@fastgpt/web/components/common/UserBox';
+import useGetUserTag from '@/utils/useGetUserTag';
+import { useToast } from '@fastgpt/web/hooks/useToast';
 const HttpEditModal = dynamic(() => import('./HttpPluginEditModal'));
 
 const ListItem = () => {
@@ -125,6 +127,8 @@ const ListItem = () => {
       }
     }
   );
+  const { hasTag } = useGetUserTag('applicationCreation');
+  const { toast } = useToast();
 
   return (
     <>
@@ -184,7 +188,14 @@ const ListItem = () => {
                       }
                     });
                   } else if (app.permission.hasWritePer) {
-                    router.push(`/app/detail?appId=${app._id}`);
+                    if (hasTag) {
+                      router.push(`/app/detail?appId=${app._id}`);
+                    } else {
+                      toast({
+                        status: 'warning',
+                        title: '暂无权限'
+                      });
+                    }
                   } else {
                     router.push(`/chat?appId=${app._id}`);
                   }

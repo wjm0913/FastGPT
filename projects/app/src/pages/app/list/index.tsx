@@ -31,6 +31,8 @@ import MyIcon from '@fastgpt/web/components/common/Icon';
 import TemplateMarketModal from '@/pageComponents/app/list/TemplateMarketModal';
 import MyImage from '@fastgpt/web/components/common/Image/MyImage';
 import JsonImportModal from '@/pageComponents/app/list/JsonImportModal';
+import useGetUserTag from '@/utils/useGetUserTag';
+import { useToast } from '@fastgpt/web/hooks/useToast';
 
 const CreateModal = dynamic(() => import('@/pageComponents/app/list/CreateModal'));
 const EditFolderModal = dynamic(
@@ -58,7 +60,9 @@ const MyApps = () => {
     setSearchKey
   } = useContextSelector(AppListContext, (v) => v);
   const { userInfo } = useUserStore();
+  const { toast } = useToast();
 
+  const { hasTag } = useGetUserTag('applicationCreation');
   const [createAppType, setCreateAppType] = useState<CreateAppType>();
   const {
     isOpen: isOpenCreateHttpPlugin,
@@ -204,7 +208,17 @@ const MyApps = () => {
                   bg: 'primary.50',
                   color: 'primary.600'
                 }}
-                onClick={() => setTemplateModalType('all')}
+                // onClick={() => setTemplateModalType('all')}
+                onClick={() => {
+                  if (hasTag) {
+                    setTemplateModalType('all');
+                    return;
+                  }
+                  toast({
+                    status: 'warning',
+                    title: '暂无权限'
+                  });
+                }}
               >
                 <MyImage src={'/imgs/app/templateFill.svg'} w={'18px'} />
                 {t('app:template_market')}

@@ -242,7 +242,7 @@ const Info = (props: any) => {
     <AccountContainer>
       <Box py={[3, '28px']} px={[5, 10]} mx={'auto'}>
         {isPc ? (
-          <Flex direction="column" w="full" maxW="800px">
+          <Flex direction="column" w="full">
             <Box mb={6}>
               <Flex fontSize="xl" fontWeight="bold" mb={4}>
                 用户标签管理

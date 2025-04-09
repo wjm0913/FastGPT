@@ -24,7 +24,9 @@ export enum UserTagEnum {
   // 数据访问标签
   DATA_ADMIN = 'data_admin', // 数据管理权限
   REPORT_ACCESS = 'report_access', // 报表访问权限
-  API_ACCESS = 'api_access' // API访问权限
+  API_ACCESS = 'api_access', // API访问权限
+
+  APPLICATIONCREATION = 'applicationCreation'
 }
 
 // 简化的Schema，只保留必要字段
@@ -83,48 +85,42 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
       // 如果请求有 allUsers 参数且为 true，返回所有用户
       if (req.query.allUsers === 'true') {
-        // 查询当前用户权限
-        const currentUserTag = await MongoUsersId2.findOne({ userId });
+        // 检查当前用户是否为root账号，而不是检查标签
+        const currentUser = await MongoUser.findById(userId);
 
-        // 检查是否有管理权限
-        if (
-          currentUserTag &&
-          // @ts-ignore
-          (currentUserTag.tags.includes(UserTagEnum.ADMIN) ||
-            currentUserTag.tags.includes(UserTagEnum.OWNER))
-        ) {
-          // 查询所有用户
-          const allUsers = await MongoUser.find({}, { _id: 1, username: 1 });
-          const allUserTags = await MongoUsersId2.find({});
-
-          // 合并用户信息和标签信息
-          const usersWithTags = allUsers.map((user) => {
-            // @ts-ignore
-            const tagInfo = allUserTags.find((tag) => tag.userId === user._id.toString());
-            return {
-              userId: user._id.toString(),
-              username: user.username,
-              // @ts-ignore
-              tags: tagInfo?.tags || []
-            };
-          });
-
-          return jsonRes(res, {
-            data: {
-              users: usersWithTags,
-              availableTags: Object.values(UserTagEnum)
-            }
-          });
-        } else {
+        if (!currentUser || currentUser.username !== 'root') {
           return jsonRes(res, {
             code: 403,
-            error: '没有管理权限'
+            error: '只有root用户才能管理所有用户标签'
           });
         }
+
+        // 查询所有用户
+        const allUsers = await MongoUser.find({}, { _id: 1, username: 1 });
+        const allUserTags = await MongoUsersId2.find({});
+
+        // 合并用户信息和标签信息
+        const usersWithTags = allUsers.map((user) => {
+          // @ts-ignore
+          const tagInfo = allUserTags.find((tag) => tag.userId === user._id.toString());
+          return {
+            userId: user._id.toString(),
+            username: user.username,
+            // @ts-ignore
+            tags: tagInfo?.tags || []
+          };
+        });
+
+        return jsonRes(res, {
+          data: {
+            users: usersWithTags,
+            availableTags: Object.values(UserTagEnum)
+          }
+        });
       }
 
-      // 如果请求有目标用户 ID，查询该用户
-      const targetUserId = (req.query.userId as string) || userId;
+      // 目标用户 ID，查询该用户
+      const targetUserId = userId;
 
       // 查询用户信息
       let user = await MongoUsersId2.findOne({ userId: targetUserId });
@@ -176,25 +172,28 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         });
       }
 
-      // 检查当前用户是否有管理权限
-      const currentUser = await MongoUsersId2.findOne({ userId });
+      // 检查当前用户是否为root账号
+      const currentUser = await MongoUser.findById(userId);
 
-      // 如果是自己修改自己，或者有管理权限，则允许操作
-      const isSelfUpdate = !req.body.targetUserId || req.body.targetUserId === userId;
-      const hasAdminPermission =
-        currentUser &&
-        // @ts-ignore
-        (currentUser.tags.includes(UserTagEnum.ADMIN) ||
-          currentUser.tags.includes(UserTagEnum.OWNER));
-
-      if (!isSelfUpdate && !hasAdminPermission) {
+      if (!currentUser || currentUser.username !== 'root') {
         return jsonRes(res, {
           code: 403,
-          error: '没有权限修改其他用户的标签'
+          error: '只有root用户才能修改其他用户的标签'
         });
       }
 
       const { targetUserId, tags } = req.body;
+
+      // 如果是自己修改自己，或者是root用户，则允许操作
+      const isSelfUpdate = !targetUserId || targetUserId === userId;
+      const isRootUser = currentUser && currentUser.username === 'root';
+
+      if (!isSelfUpdate && !isRootUser) {
+        return jsonRes(res, {
+          code: 403,
+          error: '只有root用户才能修改其他用户的标签'
+        });
+      }
 
       // 更新用户信息
       const updatedUser = await MongoUsersId2.findOneAndUpdate(

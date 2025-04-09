@@ -16,6 +16,8 @@ import MyDivider from '../MyDivider';
 import type { IconNameType } from '../Icon/type';
 import { useSystem } from '../../../hooks/useSystem';
 import Avatar from '../Avatar';
+import useGetUserTag from '../../../../../projects/app/src/utils/useGetUserTag';
+import { useToast } from '../../../hooks/useToast';
 
 export type MenuItemType = 'primary' | 'danger' | 'gray' | 'grayBg';
 
@@ -217,6 +219,8 @@ const MyMenu = ({
     if (typeof width === 'number') return [-width / 2, 5];
     return [0, 5];
   }, [offset]);
+  const { hasTag } = useGetUserTag('applicationCreation');
+  const { toast } = useToast();
 
   return (
     <Menu
@@ -232,10 +236,18 @@ const MyMenu = ({
       <Box
         ref={ref}
         onMouseEnter={() => {
-          if (formatTrigger === 'hover') {
-            setIsOpen(true);
+          if (hasTag) {
+            if (formatTrigger === 'hover') {
+              setIsOpen(true);
+            }
+            clearTimeout(closeTimer.current);
+            return;
           }
-          clearTimeout(closeTimer.current);
+
+          toast({
+            status: 'warning',
+            title: '暂无权限'
+          });
         }}
         onMouseLeave={() => {
           if (formatTrigger === 'hover') {
