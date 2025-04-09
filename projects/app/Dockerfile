@@ -75,7 +75,7 @@ COPY --from=maindeps /app/node_modules/@zilliz/milvus2-sdk-node ./node_modules/@
 
 
 # copy package.json to version file
-COPY --from=builder /app/projects/app/package.json ./package.json 
+COPY --from=builder /app/projects/app/package.json ./package.json
 
 # copy config
 COPY ./projects/app/data /app/data
@@ -94,4 +94,4 @@ USER nextjs
 
 ENV serverPath=./projects/app/server.js
 
-ENTRYPOINT ["sh","-c","node --max-old-space-size=4096 ${serverPath}"]
+ENTRYPOINT ["sh","-c","node --max-old-space-size=8192 ${serverPath}"]

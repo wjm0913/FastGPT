@@ -106,7 +106,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       });
 
       console.log('创建users_id_2记录成功:', {
+        // @ts-ignore
         userId: usersId2Record.userId,
+        // @ts-ignore
         tags: usersId2Record.tags
       });
     } catch (error) {

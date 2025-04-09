@@ -179,6 +179,7 @@ const Header = ({}: {}) => {
         <Box textAlign={'end'} mt={[3, 0]}>
           {datasetDetail?.type === DatasetTypeEnum.dataset && (
             <MyMenu
+              type="dataset"
               offset={[0, 5]}
               Button={
                 <MenuButton
