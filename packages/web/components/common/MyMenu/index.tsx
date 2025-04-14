@@ -224,6 +224,7 @@ const MyMenu = ({
   }, [offset]);
   const { hasTag: applicationCreationTag } = useGetUserTag('applicationCreation');
   const { hasTag: knowledgeBaseCreateTag } = useGetUserTag('knowledgeBaseCreate');
+  const { hasTag: theAIModelTag } = useGetUserTag('theAIModel');
   const { toast } = useToast();
 
   return (
@@ -240,7 +241,6 @@ const MyMenu = ({
       <Box
         ref={ref}
         onMouseEnter={() => {
-          console.log(type);
           if (type === 'dataset') {
             if (knowledgeBaseCreateTag) {
               if (formatTrigger === 'hover') {
@@ -253,7 +253,23 @@ const MyMenu = ({
               status: 'warning',
               title: '知识库暂无权限'
             });
-          } else {
+            return;
+          }
+          if (type === 'account') {
+            if (theAIModelTag) {
+              if (formatTrigger === 'hover') {
+                setIsOpen(true);
+              }
+              clearTimeout(closeTimer.current);
+              return;
+            }
+            toast({
+              status: 'warning',
+              title: 'AI模型新增暂无权限'
+            });
+            return;
+          }
+          if (type === 'app') {
             if (applicationCreationTag) {
               if (formatTrigger === 'hover') {
                 setIsOpen(true);
@@ -265,7 +281,12 @@ const MyMenu = ({
               status: 'warning',
               title: '工作台暂无权限'
             });
+            return;
           }
+          toast({
+            status: 'warning',
+            title: '您暂无权限，请联系管理员'
+          });
         }}
         onMouseLeave={() => {
           if (formatTrigger === 'hover') {

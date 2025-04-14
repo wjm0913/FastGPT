@@ -13,6 +13,7 @@ type Props<T = string> = Omit<BoxProps, 'onChange'> & {
 };
 
 const FillRowTabs = ({ list, value, onChange, py = '7px', px = '12px', ...props }: Props) => {
+  console.log(list, '-==-=listlistlistlist:::');
   return (
     <Box
       display={'inline-flex'}

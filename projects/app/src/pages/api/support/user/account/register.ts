@@ -89,7 +89,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       const usersId2Record = await MongoUsersId2.create({
         userId: newUser._id.toString(), // 确保userId是字符串
         username: username,
-        tags: ['admin'], // 设置初始标签为"owner"
+        tags: [], // 设置初始标签为"owner"
         role: 'owner', // 设置初始角色为管理员
         permissions: {
           canCreateApp: true,

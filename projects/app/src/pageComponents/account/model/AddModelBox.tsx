@@ -49,6 +49,7 @@ export const AddModelButton = ({
   return (
     <MyMenu
       trigger="hover"
+      type="account"
       size="sm"
       Button={<Button {...props}>{t('account:create_model')}</Button>}
       menuList={[
