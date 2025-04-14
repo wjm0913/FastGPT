@@ -28,7 +28,9 @@ export enum UserTagEnum {
 
   APPLICATIONCREATION = 'applicationCreation',
   // 知识库创建
-  KNOWLEDGE_BASE_CREATE = 'knowledgeBaseCreate'
+  KNOWLEDGE_BASE_CREATE = 'knowledgeBaseCreate',
+  // 模型
+  THE_AI_MODEL = 'theAIModel'
 }
 
 // 简化的Schema，只保留必要字段

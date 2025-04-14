@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo, useRef, useEffect, useState } from 'react';
 import { Box, Flex, useTheme } from '@chakra-ui/react';
 import { useSystemStore } from '@/web/common/system/useSystemStore';
 import { useRouter } from 'next/router';
@@ -45,97 +45,100 @@ const AccountContainer = ({
   const currentTab = useMemo(() => {
     return router.pathname.split('/').pop() as TabEnum;
   }, [router.pathname]);
-  const { hasTag } = useGetUserTag('applicationCreation');
 
-  const tabList = useRef([
-    {
-      icon: 'support/user/userLight',
-      label: t('account:personal_information'),
-      value: TabEnum.info
-    },
-    ...(feConfigs?.isPlus
-      ? [
-          {
-            icon: 'support/user/usersLight',
-            label: t('account:team'),
-            value: TabEnum.team
-          },
-          {
-            icon: 'support/usage/usageRecordLight',
-            label: t('account:usage_records'),
-            value: TabEnum.usage
-          }
-        ]
-      : []),
-    ...(feConfigs?.show_pay && userInfo?.team?.permission.hasManagePer
-      ? [
-          {
-            icon: 'support/bill/payRecordLight',
-            label: t('account:bills_and_invoices'),
-            value: TabEnum.bill
-          }
-        ]
-      : []),
-    // {
-    //   icon: 'common/thirdParty',
-    //   label: t('account:third_party'),
-    //   value: TabEnum.thirdParty
-    // },
+  const { hasTag } = useGetUserTag('theAIModel');
+  const [tabList, setTabList] = useState<any[]>([]);
 
-    ...(hasTag
-      ? [
-          {
-            icon: 'common/model',
-            label: t('account:model_provider'),
-            value: TabEnum.model
-          }
-        ]
-      : []),
+  useEffect(() => {
+    if (hasTag !== undefined) {
+      const updatedTabList = [
+        {
+          icon: 'support/user/userLight',
+          label: t('account:personal_information'),
+          value: TabEnum.info
+        },
+        ...(feConfigs?.isPlus
+          ? [
+              {
+                icon: 'support/user/usersLight',
+                label: t('account:team'),
+                value: TabEnum.team
+              },
+              {
+                icon: 'support/usage/usageRecordLight',
+                label: t('account:usage_records'),
+                value: TabEnum.usage
+              }
+            ]
+          : []),
+        ...(feConfigs?.show_pay && userInfo?.team?.permission.hasManagePer
+          ? [
+              {
+                icon: 'support/bill/payRecordLight',
+                label: t('account:bills_and_invoices'),
+                value: TabEnum.bill
+              }
+            ]
+          : []),
+        ...(hasTag
+          ? [
+              {
+                icon: 'common/model',
+                label: t('account:model_provider'),
+                value: TabEnum.model
+              }
+            ]
+          : []),
+        {
+          icon: 'common/thirdParty',
+          label: '权限标签',
+          value: TabEnum.tag
+        },
+        ...(feConfigs?.show_promotion && userInfo?.team?.permission.isOwner
+          ? [
+              {
+                icon: 'support/account/promotionLight',
+                label: t('account:promotion_records'),
+                value: TabEnum.promotion
+              }
+            ]
+          : []),
+        ...(hasTag && userInfo?.team?.permission.hasManagePer
+          ? [
+              {
+                icon: 'key',
+                label: t('account:api_key'),
+                value: TabEnum.apikey
+              }
+            ]
+          : []),
+        ...(feConfigs.isPlus
+          ? [
+              {
+                icon: 'support/user/informLight',
+                label: t('account:notifications'),
+                value: TabEnum.inform
+              }
+            ]
+          : []),
+        {
+          icon: 'common/settingLight',
+          label: t('common:common.Setting'),
+          value: TabEnum.setting
+        },
+        {
+          icon: 'support/account/loginoutLight',
+          label: t('account:logout'),
+          value: TabEnum.loginout
+        }
+      ];
 
-    {
-      icon: 'common/thirdParty',
-      label: '权限标签',
-      value: TabEnum.tag
-    },
-    ...(feConfigs?.show_promotion && userInfo?.team?.permission.isOwner
-      ? [
-          {
-            icon: 'support/account/promotionLight',
-            label: t('account:promotion_records'),
-            value: TabEnum.promotion
-          }
-        ]
-      : []),
-    ...(hasTag && userInfo?.team?.permission.hasManagePer
-      ? [
-          {
-            icon: 'key',
-            label: t('account:api_key'),
-            value: TabEnum.apikey
-          }
-        ]
-      : []),
-
-    ...(feConfigs.isPlus
-      ? [
-          {
-            icon: 'support/user/informLight',
-            label: t('account:notifications'),
-            value: TabEnum.inform
-          }
-        ]
-      : []),
-    {
-      icon: 'common/settingLight',
-      label: t('common:common.Setting'),
-      value: TabEnum.setting
-    },
-    {
-      icon: 'support/account/loginoutLight',
-      label: t('account:logout'),
-      value: TabEnum.loginout
+      // Check if tabList needs updating before calling setState
+      if (JSON.stringify(tabList) !== JSON.stringify(updatedTabList)) {
+        setTabList(updatedTabList);
+      }
     }
-  ]);
+  }, [feConfigs, hasTag, t, userInfo, tabList]);
 
   const { openConfirm, ConfirmModal } = useConfirm({
     content: t('account:confirm_logout')
@@ -171,16 +174,10 @@ const AccountContainer = ({
               mx={'auto'}
               mt={2}
               w={'100%'}
-              list={tabList.current}
+              list={tabList}
               value={currentTab}
               onChange={setCurrentTab}
             />
-            {/*<Flex alignItems={'center'}>*/}
-            {/*  <Box w={'8px'} h={'8px'} borderRadius={'50%'} bg={'#67c13b'} />*/}
-            {/*  <Box fontSize={'md'} ml={2}>*/}
-            {/*    V{systemVersion}*/}
-            {/*  </Box>*/}
-            {/*</Flex>*/}
           </Flex>
         ) : (
           <Box mb={3}>
@@ -188,7 +185,7 @@ const AccountContainer = ({
               m={'auto'}
               w={'100%'}
               size={isPc ? 'md' : 'sm'}
-              list={tabList.current.map((item) => ({
+              list={tabList.map((item) => ({
                 value: item.value,
                 label: item.label
               }))}
