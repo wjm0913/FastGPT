@@ -261,6 +261,7 @@ const ListItem = () => {
                       : app.permission.hasWritePer) && (
                       <Box className="more" display={['', 'none']}>
                         <MyMenu
+                          type="app"
                           size={'xs'}
                           Button={
                             <IconButton
