@@ -283,9 +283,13 @@ const MyMenu = ({
             });
             return;
           }
+          if (formatTrigger === 'hover') {
+            setIsOpen(true);
+          }
+          clearTimeout(closeTimer.current);
           toast({
             status: 'warning',
-            title: '您暂无权限，请联系管理员'
+            title: '注意权限控制，默认提示请忽略。'
           });
         }}
         onMouseLeave={() => {

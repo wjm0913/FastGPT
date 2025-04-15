@@ -286,6 +286,7 @@ const CollectionCard = () => {
                   <Td py={2} onClick={(e) => e.stopPropagation()}>
                     {collection.permission.hasWritePer && (
                       <MyMenu
+                        type="dataset"
                         width={100}
                         offset={[-70, 5]}
                         Button={
