@@ -1,4 +1,4 @@
-# --------- install dependence -----------
+# --------- install dependencies -----------
 FROM node:20.14.0-alpine AS maindeps
 WORKDIR /app
 
@@ -16,9 +16,9 @@ RUN [ -f pnpm-lock.yaml ] || (echo "Lockfile not found." && exit 1)
 
 # if proxy exists, set proxy
 RUN if [ -z "$proxy" ]; then \
-        pnpm i; \
+        pnpm i --verbose; \
     else \
-        pnpm i --registry=https://registry.npmmirror.com; \
+        pnpm i --registry=https://registry.npmmirror.com --verbose; \
     fi
 
 # --------- builder -----------
@@ -39,8 +39,18 @@ RUN [ -z "$proxy" ] || sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /
 
 RUN apk add --no-cache libc6-compat && npm install -g pnpm@9.4.0
 
-ENV NODE_OPTIONS="--max-old-space-size=4096"
-ENV NEXT_PUBLIC_BASE_URL=$base_url
+# Set memory limit and disable parallel tasks for rayon (Rust concurrency issue)
+ENV NODE_OPTIONS="--max-old-space-size=8192"
+# Increase Node.js memory
+ENV RAYON_NUM_THREADS=1
+# Disable rayon parallelism
+ENV CARGO_INCREMENTAL=0
+ # Disable incremental compilation in Rust
+
+# Enable Rust backtrace for better error debugging
+ENV RUST_BACKTRACE=1
+
+# Build the project
 RUN pnpm --filter=app build
 
 # --------- runner -----------
@@ -72,7 +82,6 @@ COPY --from=builder --chown=nextjs:nodejs /app/projects/app/.next/server/worker 
 COPY --from=maindeps /app/node_modules/tiktoken ./node_modules/tiktoken
 RUN rm -rf ./node_modules/tiktoken/encoders
 COPY --from=maindeps /app/node_modules/@zilliz/milvus2-sdk-node ./node_modules/@zilliz/milvus2-sdk-node
-
 
 # copy package.json to version file
 COPY --from=builder /app/projects/app/package.json ./package.json
