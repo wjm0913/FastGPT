@@ -16,6 +16,7 @@ import MyBox from '@fastgpt/web/components/common/MyBox';
 import { formatTimeToChatTime } from '@fastgpt/global/common/string/time';
 import { ChatItemContext } from '@/web/core/chat/context/chatItemContext';
 import { useChatStore } from '@/web/core/chat/context/useChatStore';
+import useGetUserTag from '@/utils/useGetUserTag';
 
 type HistoryItemType = {
   id: string;
@@ -81,6 +82,7 @@ const ChatHistorySlider = ({ confirmClearText }: { confirmClearText: string }) =
     () => appId && userInfo?.team.permission.hasWritePer && showRouteToAppDetail,
     [appId, userInfo?.team.permission.hasWritePer, showRouteToAppDetail]
   );
+  const { hasTag } = useGetUserTag('applicationCreation');
 
   return (
     <MyBox
@@ -102,13 +104,14 @@ const ChatHistorySlider = ({ confirmClearText }: { confirmClearText: string }) =
             alignItems={'center'}
             cursor={canRouteToDetail ? 'pointer' : 'default'}
             fontSize={'sm'}
-            onClick={() =>
-              canRouteToDetail &&
-              router.push({
-                pathname: '/app/detail',
-                query: { appId }
-              })
-            }
+            onClick={() => {
+              hasTag &&
+                canRouteToDetail &&
+                router.push({
+                  pathname: '/app/detail',
+                  query: { appId }
+                });
+            }}
           >
             <Avatar src={appAvatar} borderRadius={'md'} />
             <Box flex={'1 0 0'} w={0} ml={2} fontWeight={'bold'} className={'textEllipsis'}>
