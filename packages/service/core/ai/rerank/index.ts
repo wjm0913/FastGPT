@@ -46,10 +46,11 @@ export function reRankRecall({
         Authorization: model.requestAuth ? `Bearer ${model.requestAuth}` : authorization,
         ...headers
       },
-      timeout: 30000
+      timeout: 60000
     }
   )
     .then((data) => {
+      // console.log('wjm_+_+_+_+_+_+_+_+_+__+_+::::::::::::::::wjm_wjm_wjm_+_+_+_+_+_+_+_+_+__+_+::::::::::::::::wjm_wjm_');
       addLog.info('ReRank finish:', { time: Date.now() - start });
 
       if (!data?.results || data?.results?.length === 0) {
