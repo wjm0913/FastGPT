@@ -37,6 +37,7 @@ import ChatRecordContextProvider, {
   ChatRecordContext
 } from '@/web/core/chat/context/chatRecordContext';
 import ChatQuoteList from '@/pageComponents/chat/ChatQuoteList';
+import { filterResourcesByTags } from '@/utils/useGetUserTag';
 
 const CustomPluginRunBox = dynamic(() => import('@/pageComponents/chat/CustomPluginRunBox'));
 
@@ -294,6 +295,20 @@ const Render = (props: { appId: string; isStandalone?: string }) => {
     };
   }, [appId, chatId]);
 
+  const [newMyApps, setNewMyApps] = useState<AppListItemType[]>(myApps);
+  useEffect(() => {
+    filterResourcesByTags(myApps, 'appTags')
+      .then((res) => {
+        if (res.length === 0) {
+          router.push('/account/tag');
+        }
+        setNewMyApps(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [myApps]);
+
   return source === ChatSourceEnum.online ? (
     <ChatContextProvider params={chatHistoryProviderParams}>
       <ChatItemContextProvider
@@ -304,7 +319,7 @@ const Render = (props: { appId: string; isStandalone?: string }) => {
         showNodeStatus
       >
         <ChatRecordContextProvider params={chatRecordProviderParams}>
-          <Chat myApps={myApps} />
+          <Chat myApps={newMyApps} />
         </ChatRecordContextProvider>
       </ChatItemContextProvider>
     </ChatContextProvider>
