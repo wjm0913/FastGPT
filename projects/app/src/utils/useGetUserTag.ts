@@ -2,10 +2,35 @@ import { useState, useEffect, useCallback } from 'react';
 import { getUserTags } from '@/web/support/user/api';
 import { useRequest2 } from '@fastgpt/web/hooks/useRequest';
 
+// 定义资源项类型
+interface ResourceItem {
+  [key: string]: any;
+}
+
+// 权限标签类型
+interface TagItem {
+  id: string;
+  name: string;
+}
+
 /**
- * 用于获取当前用户标签并检查特定标签是否存在的Hook
- * @param tagToCheck 可选，需要检查的标签名称
- * @returns 返回包含用户标签信息和检查结果的对象
+ * 根据权限标签筛选资源列表
+ * 此函数可以独立使用，无需hook
+ */
+export const filterResourcesByTags = async (
+  resourceList: ResourceItem[],
+  type: string
+): Promise<any> => {
+  const data = await getUserTags();
+  let arrObj = data[type];
+  // 获取权限ID列表
+  const authorizedIds = arrObj.map((tag: { id: any }) => tag.id);
+  // 返回有权限的资源
+  return resourceList.filter((resource) => authorizedIds.includes(resource._id));
+};
+
+/**
+ * 用户标签和权限Hook
  */
 export const useGetUserTag = (tagToCheck?: string) => {
   const [userTagInfo, setUserTagInfo] = useState<any>(null);
@@ -13,7 +38,7 @@ export const useGetUserTag = (tagToCheck?: string) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
 
-  // 使用 useRequest2 来请求用户标签
+  // 获取用户标签数据
   const {
     loading,
     runAsync: fetchUserTags,
@@ -24,7 +49,7 @@ export const useGetUserTag = (tagToCheck?: string) => {
         const data = await getUserTags();
         setUserTagInfo(data);
 
-        // 如果指定了要检查的标签，判断该标签是否存在
+        // 检查特定标签
         if (tagToCheck && data?.tagInfo?.tagsList) {
           setHasTag(data.tagInfo.tagsList.includes(tagToCheck));
         } else {
@@ -40,17 +65,15 @@ export const useGetUserTag = (tagToCheck?: string) => {
         setIsLoading(false);
       }
     },
-    {
-      manual: true // 手动触发，而不是自动执行
-    }
+    { manual: true }
   );
 
-  // 初始化时获取数据
+  // 初始加载
   useEffect(() => {
     fetchUserTags();
   }, [fetchUserTags]);
 
-  // 当 tagToCheck 变化时更新 hasTag
+  // 标签检查更新
   useEffect(() => {
     if (userTagInfo?.tagInfo?.tagsList && tagToCheck) {
       setHasTag(userTagInfo.tagInfo.tagsList.includes(tagToCheck));
@@ -59,7 +82,7 @@ export const useGetUserTag = (tagToCheck?: string) => {
     }
   }, [tagToCheck, userTagInfo]);
 
-  // 提供检查特定标签的函数
+  // 核心功能：检查用户是否有指定标签
   const checkTag = useCallback(
     (tag: string): boolean => {
       if (!userTagInfo?.tagInfo?.tagsList) return false;
@@ -68,44 +91,33 @@ export const useGetUserTag = (tagToCheck?: string) => {
     [userTagInfo]
   );
 
-  // 提供检查多个标签中是否有任一个的函数
-  const hasAnyTag = useCallback(
-    (tags: string[]): boolean => {
-      if (!userTagInfo?.tagInfo?.tagsList) return false;
-      return tags.some((tag) => userTagInfo.tagInfo.tagsList.includes(tag));
-    },
-    [userTagInfo]
-  );
-
-  // 提供检查是否拥有所有指定标签的函数
-  const hasAllTags = useCallback(
-    (tags: string[]): boolean => {
-      if (!userTagInfo?.tagInfo?.tagsList) return false;
-      return tags.every((tag) => userTagInfo.tagInfo.tagsList.includes(tag));
-    },
-    [userTagInfo]
-  );
-
   return {
-    userTagInfo, // 完整的用户标签信息
-    tagsList: userTagInfo?.tagInfo?.tagsList || [], // 用户标签列表
-    hasTag, // 当前检查的标签是否存在
-    isAdmin: userTagInfo?.tagInfo?.isAdmin || false, // 是否为管理员
-    isOwner: userTagInfo?.tagInfo?.isOwner || false, // 是否为拥有者
-    hasAdminAccess: userTagInfo?.tagInfo?.hasAdminAccess || false, // 是否有管理权限
-    isLoading, // 加载状态
-    error, // 错误信息
-    refresh, // 刷新数据的函数
-    checkTag, // 检查特定标签的函数
-    hasAnyTag, // 检查是否有任一标签的函数
-    hasAllTags // 检查是否有所有指定标签的函数
+    // 用户数据
+    userInfo: userTagInfo,
+    tags: userTagInfo?.tagInfo?.tagsList || [],
+    appTags: userTagInfo?.appTags || [],
+    datasetTags: userTagInfo?.datasetTags || [],
+
+    // 状态
+    isLoading,
+    error,
+    hasTag,
+
+    // 权限检查
+    isAdmin: userTagInfo?.tagInfo?.isAdmin || false,
+    isOwner: userTagInfo?.tagInfo?.isOwner || false,
+    hasAdminAccess: userTagInfo?.tagInfo?.hasAdminAccess || false,
+    // 核心方法
+    refresh,
+    checkTag,
+
+    // 静态工具方法
+    filterResourcesByTags
   };
 };
 
 /**
- * 简化版的Hook，只返回是否拥有特定标签
- * @param tag 需要检查的标签名称
- * @returns 布尔值，表示用户是否拥有该标签
+ * 简化版Hook：检查用户是否有特定标签
  */
 export const useHasTag = (tag: string) => {
   const { hasTag, isLoading, error } = useGetUserTag(tag);

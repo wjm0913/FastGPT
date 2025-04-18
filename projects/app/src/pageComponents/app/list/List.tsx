@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Box, Grid, Flex, IconButton, HStack } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import { delAppById, putAppById, resumeInheritPer, changeOwner } from '@/web/core/app/api';
@@ -36,8 +36,10 @@ import { useSystem } from '@fastgpt/web/hooks/useSystem';
 import { useChatStore } from '@/web/core/chat/context/useChatStore';
 import { RequireOnlyOne } from '@fastgpt/global/common/type/utils';
 import UserBox from '@fastgpt/web/components/common/UserBox';
-import useGetUserTag from '@/utils/useGetUserTag';
+import useGetUserTag, { filterResourcesByTags } from '@/utils/useGetUserTag';
 import { useToast } from '@fastgpt/web/hooks/useToast';
+import { AppListItemType } from '@fastgpt/global/core/app/type';
+
 const HttpEditModal = dynamic(() => import('./HttpPluginEditModal'));
 
 const ListItem = () => {
@@ -130,6 +132,17 @@ const ListItem = () => {
   const { hasTag } = useGetUserTag('applicationCreation');
   const { toast } = useToast();
 
+  const [newMyApps, setNewMyApps] = useState<AppListItemType[]>(myApps);
+  useEffect(() => {
+    filterResourcesByTags(myApps, 'appTags')
+      .then((res) => {
+        setNewMyApps(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [myApps]);
+
   return (
     <>
       <Grid
@@ -142,7 +155,7 @@ const ListItem = () => {
         gridGap={5}
         alignItems={'stretch'}
       >
-        {myApps.map((app, index) => {
+        {newMyApps.map((app, index) => {
           return (
             <MyTooltip
               key={app._id}
@@ -404,7 +417,7 @@ const ListItem = () => {
           );
         })}
       </Grid>
-      {myApps.length === 0 && <EmptyTip text={t('common:core.app.no_app')} pt={'30vh'} />}
+      {newMyApps.length === 0 && <EmptyTip text={t('common:core.app.no_app')} pt={'30vh'} />}
       <DelConfirmModal />
       <ConfirmCopyModal />
       {!!editedApp && (

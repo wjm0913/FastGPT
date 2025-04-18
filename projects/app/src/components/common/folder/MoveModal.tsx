@@ -48,6 +48,7 @@ const MoveModal = ({ moveResourceId, title, server, onConfirm, onClose, moveHint
 
   useMount(async () => {
     const data = await requestServer({ parentId: null });
+    console.log(data, 'appsdatadatadatadata');
     setFolderList([
       {
         id: rootId,

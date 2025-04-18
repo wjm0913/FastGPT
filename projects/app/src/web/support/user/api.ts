@@ -148,6 +148,11 @@ export const getUserTags = () =>
     };
     isFirstTime: boolean;
     availableTags: string[];
+    availableApps: Array<{ id: string; name: string }>;
+    availableDatasets: Array<{ id: string; name: string }>;
+    appTags: Array<{ id: string; name: string }>;
+    datasetTags: Array<{ id: string; name: string }>;
+    [key: string]: any;
   }>('/support/user/account/getUserId2');
 
 /**
@@ -155,12 +160,16 @@ export const getUserTags = () =>
  * @param data 更新参数
  */
 export const updateUserTags = (data: {
-  targetUserId?: string; // 要更新的用户ID，不提供则更新当前用户
-  tags: string[]; // 新的标签数组
+  targetUserId?: string;
+  tags: string[];
+  appTags?: string[];
+  datasetTags?: string[];
 }) =>
   POST<{
     userId: string;
     tags: string[];
+    appTags?: Array<{ id: string; name: string }>;
+    datasetTags?: Array<{ id: string; name: string }>;
     updated: boolean;
   }>('/support/user/account/getUserId2', data);
 
@@ -174,6 +183,10 @@ export const getAllUsersWithTags = () =>
       userId: string;
       username: string;
       tags: string[];
+      appTags: Array<{ id: string; name: string }>;
+      datasetTags: Array<{ id: string; name: string }>;
     }>;
     availableTags: string[];
+    availableApps: Array<{ id: string; name: string }>;
+    availableDatasets: Array<{ id: string; name: string }>;
   }>('/support/user/account/getUserId2', { allUsers: true });

@@ -194,6 +194,15 @@ async function handler(req: ApiRequestProps<ListAppBody>): Promise<AppListItemTy
         };
       })();
 
+      console.log(
+        '-=-==-=::::::',
+
+        {
+          ...app,
+          permission: Per,
+          private: privateApp
+        }
+      );
       return {
         ...app,
         permission: Per,
@@ -201,10 +210,12 @@ async function handler(req: ApiRequestProps<ListAppBody>): Promise<AppListItemTy
       };
     })
     .filter((app) => app.permission.hasReadPer);
-
-  return addSourceMember({
+  let a = addSourceMember({
     list: formatApps
   });
+
+  console.log(formatApps, 'aaaaaaa---------------------::::');
+  return a;
 }
 
 export default NextAPI(handler);
