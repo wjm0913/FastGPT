@@ -296,18 +296,30 @@ const Render = (props: { appId: string; isStandalone?: string }) => {
   }, [appId, chatId]);
 
   const [newMyApps, setNewMyApps] = useState<AppListItemType[]>(myApps);
+
   useEffect(() => {
-    filterResourcesByTags(myApps, 'appTags')
-      .then((res) => {
-        if (res.length === 0) {
-          router.push('/account/tag');
+    const fetchData = async () => {
+      try {
+        if (myApps.length <= 0) {
+          return;
         }
-        setNewMyApps(res);
-      })
-      .catch((err) => {
+        const res = await filterResourcesByTags(myApps, 'appTags');
+        console.log(res);
+        if (res.length === 0) {
+          // 如果没有资源，跳转到 tag 页面
+          router.push('/account/tag');
+        } else {
+          // 否则更新状态
+          setNewMyApps(res);
+        }
+      } catch (err) {
+        // 捕获并打印错误
         console.log(err);
-      });
-  }, [myApps]);
+      }
+    };
+
+    fetchData(); // 调用异步函数
+  }, [myApps]); // 依赖 myApps 变化触发 useEffect
 
   return source === ChatSourceEnum.online ? (
     <ChatContextProvider params={chatHistoryProviderParams}>
