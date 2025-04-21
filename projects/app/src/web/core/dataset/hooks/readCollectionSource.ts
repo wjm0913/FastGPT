@@ -21,8 +21,6 @@ export function getCollectionSourceAndOpen(
       if (!url) {
         throw new Error('No file found');
       }
-      console.log(url, '-=-=-=-=---=:::::');
-      return;
       if (url.startsWith('/')) {
         window.open(`${location.origin}${url}`, '_blank');
       } else {
