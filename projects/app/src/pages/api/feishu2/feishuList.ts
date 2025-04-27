@@ -50,7 +50,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
     let feishuList = await client.wiki.v2.space.list({
       params: {
-        page_size: 20,
+        page_size: 30,
         lang: 'en'
       }
     });

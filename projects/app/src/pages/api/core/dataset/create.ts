@@ -110,3 +110,88 @@ async function handler(
   return datasetId;
 }
 export default NextAPI(handler);
+
+export const createDataset = async (req: any) => {
+  console.log(req);
+
+  const {
+    parentId,
+    name,
+    intro,
+    type = DatasetTypeEnum.dataset,
+    avatar,
+    vectorModel = getDefaultEmbeddingModel()?.model,
+    agentModel = getDatasetModel()?.model,
+    vlmModel,
+    apiServer,
+    feishuServer,
+    yuqueServer
+  } = req;
+  // const [{ teamId, tmbId, userId }] = await Promise.all([
+  //   authUserPer({
+  //     req,
+  //     authToken: true,
+  //     authApiKey: true,
+  //     per: WritePermissionVal
+  //   }),
+  //   ...(parentId
+  //     ? [
+  //       authDataset({
+  //         req,
+  //         datasetId: parentId,
+  //         authToken: true,
+  //         authApiKey: true,
+  //         per: WritePermissionVal
+  //       })
+  //     ]
+  //     : [])
+  // ]);
+
+  // check model valid
+  const vectorModelStore = getEmbeddingModel(vectorModel);
+  const agentModelStore = getLLMModel(agentModel);
+  if (!vectorModelStore) {
+    return Promise.reject(`System not embedding model`);
+  }
+  if (!agentModelStore) {
+    return Promise.reject(`System not llm model`);
+  }
+
+  // check limit
+  await checkTeamDatasetLimit('67e3e7b3309967a60ee9988a');
+
+  const datasetId = await mongoSessionRun(async (session) => {
+    const [{ _id }] = await MongoDataset.create(
+      [
+        {
+          ...parseParentIdInMongo(parentId),
+          name,
+          intro,
+          teamId: '67e3e7b3309967a60ee9988a',
+          tmbId: '67e3e7b3309967a60ee9988f',
+          vectorModel,
+          agentModel,
+          vlmModel,
+          avatar,
+          type,
+          apiServer,
+          feishuServer,
+          yuqueServer
+        }
+      ],
+      { session, ordered: true }
+    );
+    await refreshSourceAvatar(avatar, undefined, session);
+
+    return _id;
+  });
+
+  pushTrack.createDataset({
+    type,
+    teamId: '67e3e7b3309967a60ee9988a',
+    tmbId: '67e3e7b3309967a60ee9988f',
+    uid: '67e3e7b3309967a60ee9987f'
+  });
+
+  return datasetId;
+};

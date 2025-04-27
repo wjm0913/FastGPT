@@ -105,3 +105,84 @@ export const config = {
 };
 
 export default NextAPI(handler);
+
+export const createLocalFileCollection = async (req: any, res: any) => {
+  let filePaths: string[] = [];
+
+  // Create multer uploader
+  const upload = getUploadModel({
+    maxSize: global.feConfigs?.uploadFileMaxSize
+  });
+  const { file, data, bucketName } = await upload.doUpload<FileCreateDatasetCollectionParams>(
+    req,
+    res,
+    BucketNameEnum.dataset
+  );
+  filePaths = [file.path];
+
+  if (!file || !bucketName) {
+    throw new Error('file is empty');
+  }
+
+  const { teamId, tmbId, dataset } = await authDataset({
+    req,
+    authToken: true,
+    authApiKey: true,
+    per: WritePermissionVal,
+    datasetId: data.datasetId
+  });
+
+  const { fileMetadata, collectionMetadata, ...collectionData } = data;
+  const collectionName = file.originalname;
+
+  const relatedImgId = getNanoid();
+
+  // 1. read file
+  const { rawText } = await readRawTextByLocalFile({
+    teamId: '67e3e7b3309967a60ee9988a',
+    tmbId: '67e3e7b3309967a60ee9988f',
+    path: file.path,
+    encoding: file.encoding,
+    customPdfParse: collectionData.customPdfParse,
+    metadata: {
+      ...fileMetadata,
+      relatedId: relatedImgId
+    }
+  });
+
+  // 2. upload file
+  const fileId = await uploadFile({
+    teamId: '67e3e7b3309967a60ee9988a',
+
+    // uid: tmbId,
+    uid: '67e3e7b3309967a60ee9987f',
+    bucketName,
+    path: file.path,
+    filename: file.originalname,
+    contentType: file.mimetype,
+    metadata: fileMetadata
+  });
+
+  // 3. delete tmp file
+  removeFilesByPaths(filePaths);
+
+  const { collectionId, insertResults } = await createCollectionAndInsertData({
+    dataset,
+    rawText,
+    relatedId: relatedImgId,
+    createCollectionParams: {
+      ...collectionData,
+      name: collectionName,
+      teamId: '67e3e7b3309967a60ee9988a',
+      tmbId: '67e3e7b3309967a60ee9988f',
+      type: DatasetCollectionTypeEnum.file,
+      fileId,
+      metadata: {
+        ...collectionMetadata,
+        relatedImgId
+      }
+    }
+  });
+
+  return { collectionId, results: insertResults };
+};

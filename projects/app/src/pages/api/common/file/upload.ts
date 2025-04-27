@@ -32,6 +32,7 @@ const authUploadLimit = (tmbId: string) => {
 
 async function handler(req: NextApiRequest, res: NextApiResponse<any>) {
   const filePaths: string[] = [];
+  console.log(res, '-=-=--=-:::""""___resresresres');
   try {
     const start = Date.now();
     /* Creates the multer uploader */

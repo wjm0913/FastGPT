@@ -2,13 +2,8 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { jsonRes } from '@fastgpt/service/common/response';
 import { NextAPI } from '@/service/middleware/entry';
 import { connectionMongo, getMongoModel } from '@fastgpt/service/common/mongo';
-// import { authCert } from '@fastgpt/service/support/permission/auth/common';
 import { connectToDatabase } from '@/service/mongo';
-// import { MongoUser } from '@fastgpt/service/support/user/schema';
-// import { MongoApp } from '@fastgpt/service/core/app/schema';
-// import { MongoDataset } from '@fastgpt/service/core/dataset/schema';
 import * as lark from '@larksuiteoapi/node-sdk';
-// https://accounts.feishu.cn/open-apis/authen/v1/authorize?client_id=cli_a608d0dd07fd900d&redirect_uri=https://labai.gydev.cn/
 
 const appId = 'cli_a608d0dd07fd900d';
 const appSecret = 'GiIHE0T31SoY9F7OjcyDlbF1omk6nE5f';
@@ -70,7 +65,16 @@ const Feishu2 = new Schema(
       required: true,
       index: true // 加索引，加速查询
     },
+    dataset_id: {
+      // 确保这个字段被正确定义
+      type: String,
+      required: true
+    },
     tree_data: {
+      type: [Schema.Types.Mixed], // 明确定义为数组类型
+      default: [] // 默认值为空数组而非空对象
+    },
+    dataset_tree_data: {
       type: [Schema.Types.Mixed], // 明确定义为数组类型
       default: [] // 默认值为空数组而非空对象
     },

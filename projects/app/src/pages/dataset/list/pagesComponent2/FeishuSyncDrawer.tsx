@@ -172,7 +172,7 @@ const FeishuSyncDrawer = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
   );
 
   // 处理同步操作
-  const handleSync = () => {
+  const handleSync = async () => {
     if (!selectedSpace) {
       toast({
         status: 'error',
@@ -189,17 +189,19 @@ const FeishuSyncDrawer = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
       return;
     }
 
-    // 打印同步信息和节点列表
-    console.log({
-      selectedSpace,
-      syncMethod,
-      description,
-      nodeList
-    });
-
-    // TODO: 实际同步逻辑，将树形数据发送到后端
-
-    return;
+    const response = await GET<FeishuNodeResponse>(
+      '/feishu2/FullSynchronization',
+      {
+        space_id: selectedSpace,
+        refresh: 'true',
+        name: selectedSpaceInfo?.name,
+        intro: selectedSpaceInfo?.description
+      },
+      {
+        timeout: 10000000
+      }
+    );
+    console.log('知识库节点列表:', response);
   };
 
   // 获取选中的知识库信息
