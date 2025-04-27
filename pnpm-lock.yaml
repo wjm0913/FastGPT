@@ -10,7 +10,7 @@ importers:
     devDependencies:
       '@chakra-ui/cli':
         specifier: ^2.4.1
-        version: 2.5.8(encoding@0.1.13)(react@18.3.1)
+        version: 2.5.8(encoding@0.1.13)(react@18.3.1)(ws@8.18.1)
       '@vitest/coverage-v8':
         specifier: ^3.0.2
         version: 3.0.8(vitest@3.0.8(@types/debug@4.1.12)(@types/node@20.17.24)(sass@1.85.1)(terser@5.39.0))
@@ -462,6 +462,9 @@ importers:
       '@fortaine/fetch-event-source':
         specifier: ^3.0.6
         version: 3.0.6
+      '@larksuiteoapi/node-sdk':
+        specifier: ^1.46.0
+        version: 1.46.0
       '@node-rs/jieba':
         specifier: 2.0.1
         version: 2.0.1
@@ -2164,6 +2167,9 @@ packages:
     peerDependencies:
       jsep: ^0.4.0||^1.0.0
 
+  '@larksuiteoapi/node-sdk@1.46.0':
+    resolution: {integrity: sha512-VgF2Q8c71AlcTL8ic1gUGX7tphAJYjXgiXBqhMrhgL67AV6NB8jpNBd963IkNPxMayL5siBhxyjsYV8ZojS/Xw==}
+
   '@lexical/clipboard@0.12.6':
     resolution: {integrity: sha512-rJFp7tXzawCrMWWRsjCR80dZoIkLJ/EPgPmTk3xqpc+9ntlwbkm3LUOdFmgN+pshnhiZTQBwbFqg/QbsA1Pw9g==}
     peerDependencies:
@@ -3862,6 +3868,9 @@ packages:
     resolution: {integrity: sha512-Xm7bpRXnDSX2YE2YFfBk2FnF0ep6tmG7xPh8iHee8MIcrgq762Nkce856dYtJYLkuIoYZvGfTs/PbZhideTcEg==}
     engines: {node: '>=4'}
 
+  axios@0.27.2:
+    resolution: {integrity: sha512-t+yRIyySRTp/wua5xEr+z1q60QmLq8ABsS5O9Me1AsE5dfKqgnCFzwiCZZ/cGNd1lq4/7akDWMxdhVlucjmnOQ==}
+
   axios@1.8.3:
     resolution: {integrity: sha512-iP4DebzoNlP/YN2dpwCgb8zoCmhtkajzS48JvwmkSkXvPI3DHc7m+XYL5tGnSlJtR6nImXZmdCuN5aP8dh1d8A==}
 
@@ -5428,6 +5437,7 @@ packages:
 
   formidable@2.1.2:
     resolution: {integrity: sha512-CM3GuJ57US06mlpQ47YcunuUZ9jpm8Vx+P2CGt2j7HpgkKZO/DJYQ0Bobim8G6PFQmK5lOqOOdUXboU+h73A4g==}
+    deprecated: 'ACTION REQUIRED: SWITCH TO v3 - v1 and v2 are VULNERABLE! v1 is DEPRECATED FOR OVER 2 YEARS! Use formidable@latest or try formidable-mini for fresh projects'
 
   forwarded@0.2.0:
     resolution: {integrity: sha512-buRG0fpBtRHSTCOASe6hD258tEubFoRLb4ZNA6NxMVHNw2gOcwHo9wyablzMzOA5z9xA9L1KNjk/Nt6MT9aYow==}
@@ -6551,6 +6561,13 @@ packages:
   lodash.debounce@4.0.8:
     resolution: {integrity: sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==}
 
+  lodash.get@4.4.2:
+    resolution: {integrity: sha512-z+Uw/vLuy6gQe8cfaFWD7p0wVv8fJl3mbzXh33RS+0oW2wvUqiRXiQ69gLWSLpgB5/6sU+r6BlQR0MBILadqTQ==}
+    deprecated: This package is deprecated. Use the optional chaining (?.) operator instead.
+
+  lodash.identity@3.0.0:
+    resolution: {integrity: sha512-AupTIzdLQxJS5wIYUQlgGyk2XRTfGXA+MCghDHqZk0pzUNYvd3EESS6dkChNauNYVIutcb0dfHw1ri9Q1yPV8Q==}
+
   lodash.includes@4.3.0:
     resolution: {integrity: sha512-W3Bx6mdkRTGtlJISOvVD/lbqjTlPPUDTMnlXZFnVwi9NKJ6tiAk6LVdlhZMm17VZisqhKcgzpO5Wz91PCt5b0w==}
 
@@ -6580,6 +6597,9 @@ packages:
 
   lodash.once@4.1.1:
     resolution: {integrity: sha512-Sb487aTOCr9drQVL8pIxOzVhafOjZN9UU54hiN8PU3uAiSV7lx1yYNpbNmex2PK6dSJoNTSJUUswT651yww3Mg==}
+
+  lodash.pickby@4.6.0:
+    resolution: {integrity: sha512-AZV+GsS/6ckvPOVQPXSiFFacKvKB4kOQu6ynt9wz0F3LO4R9Ij4K1ddYsIytDpSgLz88JHd9P+oaLeej5/Sl7Q==}
 
   lodash@4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
@@ -9522,6 +9542,18 @@ packages:
     resolution: {integrity: sha512-7KxauUdBmSdWnmpaGFg+ppNjKF8uNLry8LyzjauQDOVONfFLNKrKvQOxZ/VuTIcS/gge/YNahf5RIIQWTSarlg==}
     engines: {node: ^12.13.0 || ^14.15.0 || >=16.0.0}
 
+  ws@8.18.1:
+    resolution: {integrity: sha512-RKW2aJZMXeMxVpnZ6bck+RswznaxmzdULiBr6KY7XkTnW8uvt0iT9H5DkHUChXrc+uurzwa0rVI16n/Xzjdz1w==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+
   xdg-basedir@5.1.0:
     resolution: {integrity: sha512-GCPAHLvrIH13+c0SuacwvRYj2SxJXQ4kaVTT5xgL3kPrz56XxkF21IGhjSE1+W0aw7gpBWRGXLCPnPby6lSpmQ==}
     engines: {node: '>=12'}
@@ -10626,11 +10658,11 @@ snapshots:
 
   '@chakra-ui/anatomy@2.3.6': {}
 
-  '@chakra-ui/cli@2.5.8(encoding@0.1.13)(react@18.3.1)':
+  '@chakra-ui/cli@2.5.8(encoding@0.1.13)(react@18.3.1)(ws@8.18.1)':
     dependencies:
       bundle-n-require: 1.1.2
       chokidar: 3.6.0
-      cli-welcome: 2.2.3(encoding@0.1.13)(react@18.3.1)
+      cli-welcome: 2.2.3(encoding@0.1.13)(react@18.3.1)(ws@8.18.1)
       commander: 11.1.0
       ora: 7.0.1
       prettier: 3.2.4
@@ -11378,6 +11410,21 @@ snapshots:
   '@jsep-plugin/regex@1.0.4(jsep@1.4.0)':
     dependencies:
       jsep: 1.4.0
+
+  '@larksuiteoapi/node-sdk@1.46.0':
+    dependencies:
+      axios: 0.27.2
+      lodash.get: 4.4.2
+      lodash.identity: 3.0.0
+      lodash.merge: 4.6.2
+      lodash.pickby: 4.6.0
+      protobufjs: 7.4.0
+      qs: 6.14.0
+      ws: 8.18.1
+    transitivePeerDependencies:
+      - bufferutil
+      - debug
+      - utf-8-validate
 
   '@lexical/clipboard@0.12.6(lexical@0.12.6)':
     dependencies:
@@ -13232,6 +13279,13 @@ snapshots:
 
   axe-core@4.10.3: {}
 
+  axios@0.27.2:
+    dependencies:
+      follow-redirects: 1.15.9(debug@4.4.0)
+      form-data: 4.0.2
+    transitivePeerDependencies:
+      - debug
+
   axios@1.8.3:
     dependencies:
       follow-redirects: 1.15.9(debug@4.4.0)
@@ -13648,9 +13702,9 @@ snapshots:
 
   clean-stack@2.2.0: {}
 
-  clear-any-console@1.16.3(encoding@0.1.13)(react@18.3.1):
+  clear-any-console@1.16.3(encoding@0.1.13)(react@18.3.1)(ws@8.18.1):
     dependencies:
-      langbase: 1.1.44(encoding@0.1.13)(react@18.3.1)
+      langbase: 1.1.44(encoding@0.1.13)(react@18.3.1)(ws@8.18.1)
     transitivePeerDependencies:
       - encoding
       - react
@@ -13679,10 +13733,10 @@ snapshots:
       slice-ansi: 5.0.0
       string-width: 5.1.2
 
-  cli-welcome@2.2.3(encoding@0.1.13)(react@18.3.1):
+  cli-welcome@2.2.3(encoding@0.1.13)(react@18.3.1)(ws@8.18.1):
     dependencies:
       chalk: 2.4.2
-      clear-any-console: 1.16.3(encoding@0.1.13)(react@18.3.1)
+      clear-any-console: 1.16.3(encoding@0.1.13)(react@18.3.1)(ws@8.18.1)
     transitivePeerDependencies:
       - encoding
       - react
@@ -16450,10 +16504,10 @@ snapshots:
 
   kuler@2.0.0: {}
 
-  langbase@1.1.44(encoding@0.1.13)(react@18.3.1):
+  langbase@1.1.44(encoding@0.1.13)(react@18.3.1)(ws@8.18.1):
     dependencies:
       dotenv: 16.4.7
-      openai: 4.87.3(encoding@0.1.13)(zod@3.24.2)
+      openai: 4.87.3(encoding@0.1.13)(ws@8.18.1)(zod@3.24.2)
       zod: 3.24.2
       zod-validation-error: 3.4.0(zod@3.24.2)
     optionalDependencies:
@@ -16555,6 +16609,10 @@ snapshots:
 
   lodash.debounce@4.0.8: {}
 
+  lodash.get@4.4.2: {}
+
+  lodash.identity@3.0.0: {}
+
   lodash.includes@4.3.0: {}
 
   lodash.isboolean@3.0.3: {}
@@ -16574,6 +16632,8 @@ snapshots:
   lodash.mergewith@4.6.2: {}
 
   lodash.once@4.1.1: {}
+
+  lodash.pickby@4.6.0: {}
 
   lodash@4.17.21: {}
 
@@ -17774,7 +17834,7 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  openai@4.87.3(encoding@0.1.13)(zod@3.24.2):
+  openai@4.87.3(encoding@0.1.13)(ws@8.18.1)(zod@3.24.2):
     dependencies:
       '@types/node': 18.19.80
       '@types/node-fetch': 2.6.12
@@ -17784,6 +17844,7 @@ snapshots:
       formdata-node: 4.4.1
       node-fetch: 2.7.0(encoding@0.1.13)
     optionalDependencies:
+      ws: 8.18.1
       zod: 3.24.2
     transitivePeerDependencies:
       - encoding
@@ -20214,6 +20275,8 @@ snapshots:
     dependencies:
       imurmurhash: 0.1.4
       signal-exit: 3.0.7
+
+  ws@8.18.1: {}
 
   xdg-basedir@5.1.0: {}
 

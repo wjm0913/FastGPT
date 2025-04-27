@@ -1,5 +1,25 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import { Box, Flex, Button, InputGroup, InputLeftElement, Input } from '@chakra-ui/react';
+import React, { useCallback, useMemo, useState, useEffect } from 'react';
+import {
+  Box,
+  Flex,
+  Button,
+  InputGroup,
+  InputLeftElement,
+  Input,
+  Drawer,
+  DrawerBody,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
+  useDisclosure,
+  FormControl,
+  FormLabel,
+  Stack,
+  Select,
+  Textarea
+} from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import { serviceSideProps } from '@/web/common/i18n/utils';
@@ -29,12 +49,14 @@ import { DatasetTypeEnum } from '@fastgpt/global/core/dataset/constants';
 import { useToast } from '@fastgpt/web/hooks/useToast';
 import MyBox from '@fastgpt/web/components/common/MyBox';
 import { useSystemStore } from '@/web/common/system/useSystemStore';
-
+import FeishuSyncDrawer from './pagesComponent2/FeishuSyncDrawer';
 const EditFolderModal = dynamic(
   () => import('@fastgpt/web/components/common/MyModal/EditFolderModal')
 );
 
 const CreateModal = dynamic(() => import('@/pageComponents/dataset/list/CreateModal'));
+
+// FeishuSyncDrawer component (pagesComponent2)
 
 const Dataset = () => {
   const { isPc } = useSystem();
@@ -61,13 +83,11 @@ const Dataset = () => {
   const { toast } = useToast();
   const [editFolderData, setEditFolderData] = useState<EditFolderFormType>();
   const [createDatasetType, setCreateDatasetType] = useState<CreateDatasetType>();
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const onSelectDatasetType = useCallback(
     (e: CreateDatasetType) => {
-      if (
-        !feConfigs?.isPlus &&
-        [DatasetTypeEnum.websiteDataset, DatasetTypeEnum.feishu, DatasetTypeEnum.yuque].includes(e)
-      ) {
+      if (false) {
         return toast({
           status: 'warning',
           title: t('common:commercial_function_tip')
@@ -123,6 +143,17 @@ const Dataset = () => {
                   >
                     {t('common:core.dataset.My Dataset')}
                   </Box>
+
+                  <Button
+                    style={{
+                      marginLeft: '10px'
+                    }}
+                    onClick={onOpen}
+                    px={6}
+                    leftIcon={<MyIcon name={'core/dataset/feishuDatasetColor'} w={'18px'} />}
+                  >
+                    飞书知识库同步
+                  </Button>
                 </Flex>
               }
               onClick={(e) => {
@@ -319,6 +350,9 @@ const Dataset = () => {
           parentId={parentId || undefined}
         />
       )}
+
+      {/* Using the FeishuSyncDrawer component */}
+      <FeishuSyncDrawer isOpen={isOpen} onClose={onClose} />
     </MyBox>
   );
 };
