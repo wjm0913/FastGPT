@@ -27,6 +27,7 @@ export enum UserTagEnum {
   DATA_ADMIN = 'data_admin', // 数据管理权限
   REPORT_ACCESS = 'report_access', // 报表访问权限
   API_ACCESS = 'api_access', // API访问权限
+  SYNCHRONIZE_KNOWLEDGE_BASE = 'synchronize_knowledge_base', // 同步知识库
 
   APPLICATIONCREATION = 'applicationCreation',
   // 知识库创建

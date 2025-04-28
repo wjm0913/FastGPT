@@ -40,7 +40,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       avatar: 'core/dataset/commonDatasetColor',
       name: String(name || '默认名称'),
       intro: String(intro || ''),
-      vectorModel: 'bge-large:latest',
+      vectorModel: 'gyyx-cospower-larkai-bge-large:1024dim',
       agentModel: 'qwen2.5',
       vlmModel: 'qwen-vl-plus'
     });

@@ -50,6 +50,7 @@ import { useToast } from '@fastgpt/web/hooks/useToast';
 import MyBox from '@fastgpt/web/components/common/MyBox';
 import { useSystemStore } from '@/web/common/system/useSystemStore';
 import FeishuSyncDrawer from './pagesComponent2/FeishuSyncDrawer';
+import useGetUserTag from '@/utils/useGetUserTag';
 const EditFolderModal = dynamic(
   () => import('@fastgpt/web/components/common/MyModal/EditFolderModal')
 );
@@ -84,6 +85,7 @@ const Dataset = () => {
   const [editFolderData, setEditFolderData] = useState<EditFolderFormType>();
   const [createDatasetType, setCreateDatasetType] = useState<CreateDatasetType>();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { hasTag } = useGetUserTag('synchronize_knowledge_base');
 
   const onSelectDatasetType = useCallback(
     (e: CreateDatasetType) => {
@@ -143,17 +145,18 @@ const Dataset = () => {
                   >
                     {t('common:core.dataset.My Dataset')}
                   </Box>
-
-                  <Button
-                    style={{
-                      marginLeft: '10px'
-                    }}
-                    onClick={onOpen}
-                    px={6}
-                    leftIcon={<MyIcon name={'core/dataset/feishuDatasetColor'} w={'18px'} />}
-                  >
-                    飞书知识库同步
-                  </Button>
+                  {hasTag && (
+                    <Button
+                      style={{
+                        marginLeft: '10px'
+                      }}
+                      onClick={onOpen}
+                      px={6}
+                      leftIcon={<MyIcon name={'core/dataset/feishuDatasetColor'} w={'18px'} />}
+                    >
+                      飞书知识库同步
+                    </Button>
+                  )}
                 </Flex>
               }
               onClick={(e) => {
