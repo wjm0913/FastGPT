@@ -231,13 +231,14 @@ const FeishuSyncDrawer = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
 
       source.onopen = () => {
         console.log('SSE连接已建立');
+        setIsNodeListLoading(true);
       };
 
       source.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
           console.log('收到同步进度数据:', data);
-
+          setIsNodeListLoading(true);
           // 忽略保活消息
           if (data.keepAlive) return;
 
@@ -268,6 +269,7 @@ const FeishuSyncDrawer = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
               stage: 'complete',
               finishedFiles: data.successCount || prev.finishedFiles
             }));
+            setIsNodeListLoading(false);
 
             toast({
               status: 'success',
@@ -278,6 +280,7 @@ const FeishuSyncDrawer = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
             setTimeout(() => {
               source.close();
               setIsLoading(false);
+              setIsNodeListLoading(false);
               setSyncStatus((prev) => ({ ...prev, isActive: false }));
               setTimeout(() => onClose(), 1500);
             }, 1000);
