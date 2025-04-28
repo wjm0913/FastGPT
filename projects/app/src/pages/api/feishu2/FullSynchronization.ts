@@ -29,11 +29,30 @@ function sanitizeFileName(name: string) {
 }
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    Connection: 'keep-alive'
+  });
+
+  const keepAliveInterval = setInterval(() => {
+    res.write(`data: ${JSON.stringify({ keepAlive: true })}\n\n`);
+  }, 15000);
+
   try {
+    // res.write(`data: ${JSON.stringify({ message: '连接建立成功' })}\n\n`);
     await connectToDatabase();
     const { space_id, name, intro } = req.query;
     if (!space_id) {
-      return jsonRes(res, { code: 400, error: '缺少必要参数 space_id' });
+      res.write(`data: ${JSON.stringify({ error: '缺少必要参数 space_id' })}\n\n`);
+      (res as any).flush?.();
+      clearInterval(keepAliveInterval);
+      res.end();
+      return;
     }
     const responseDatasetIdObj = await createDataset({
       type: 'dataset',
@@ -54,7 +73,11 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       strictQuery: false
     }).lean();
     if (!dbData || !dbData.tree_data || dbData.tree_data.length === 0) {
-      return jsonRes(res, { code: 404, error: '未找到对应数据' });
+      res.write(`data: ${JSON.stringify({ error: '未找到对应数据' })}\n\n`);
+      (res as any).flush?.();
+      clearInterval(keepAliveInterval);
+      res.end();
+      return;
     }
 
     console.log(
@@ -80,13 +103,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     const totalCount = countNodes(dbData.tree_data);
 
     let successCount = 0;
+    let downloadSuccessCount = 0;
+    let uploadSuccessCount = 0;
     const failList: { title: string; reason: string }[] = [];
-
-    res.writeHead(200, {
-      'Content-Type': 'text/event-stream',
-      'Cache-Control': 'no-cache',
-      Connection: 'keep-alive'
-    });
 
     // 递归导出处理
     async function exportTree(nodes: any[], parentPath: string, parentCollectionId: string) {
@@ -174,17 +193,32 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
           console.log(`保存成功: ${filePath}`);
           successCount++;
+          downloadSuccessCount++;
 
           // 更新节点状态
           node.sync_status = 'downloaded';
 
+          // 细化进度推送 - 保存成功
           res.write(
             `data: ${JSON.stringify({
+              stage: 'export_save',
               successCount,
               currentTitle: title,
-              progressPercent: Math.floor(((successCount + failList.length) / totalCount) * 100)
+              progressPercent: Math.floor((downloadSuccessCount / (totalCount * 2)) * 100)
             })}\n\n`
           );
+          (res as any).flush?.();
+
+          // 导出阶段进度推送
+          res.write(
+            `data: ${JSON.stringify({
+              stage: 'export',
+              successCount,
+              currentTitle: title,
+              progressPercent: Math.floor((downloadSuccessCount / (totalCount * 2)) * 100)
+            })}\n\n`
+          );
+          (res as any).flush?.();
         } catch (error: any) {
           console.error(`文档导出失败: ${title}`, error);
           failList.push({ title, reason: error?.message || '未知错误' });
@@ -193,12 +227,14 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
           res.write(
             `data: ${JSON.stringify({
+              stage: 'export',
               successCount,
               currentTitle: title,
               error: true,
-              progressPercent: Math.floor(((successCount + failList.length) / totalCount) * 100)
+              progressPercent: Math.floor((downloadSuccessCount / (totalCount * 2)) * 100)
             })}\n\n`
           );
+          (res as any).flush?.();
         }
 
         if (node.has_child && node.children && node.children.length > 0) {
@@ -294,6 +330,21 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
           console.log(`开始上传文件: ${filePath} 到 collection_id: ${parentId}`);
           await createLocalFileCollection(simulatedReq, res);
+
+          uploadSuccessCount++;
+
+          // 细化进度推送 - 上传成功
+          res.write(
+            `data: ${JSON.stringify({
+              stage: 'upload',
+              successCount,
+              currentTitle: title,
+              progressPercent: Math.floor(
+                ((downloadSuccessCount + uploadSuccessCount) / (totalCount * 2)) * 100
+              )
+            })}\n\n`
+          );
+          (res as any).flush?.();
         } else {
           console.log(`本地没有找到对应文件，跳过: ${safeTitle}`);
         }
@@ -313,13 +364,16 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     res.write(
       `data: ${JSON.stringify({ done: true, total: successCount + failList.length, successCount, failList, progressPercent: 100 })}\n\n`
     );
+    (res as any).flush?.();
+    clearInterval(keepAliveInterval);
     res.end();
   } catch (error) {
-    console.error('飞书知识库导出接口异常:', error);
-    return jsonRes(res, {
-      code: 500,
-      error: typeof error === 'object' ? (error as any).message || '服务器错误' : '服务器错误'
-    });
+    res.write(
+      `data: ${JSON.stringify({ error: typeof error === 'object' ? (error as any).message || '服务器错误' : '服务器错误' })}\n\n`
+    );
+    (res as any).flush?.();
+    clearInterval(keepAliveInterval);
+    res.end();
   }
 }
 

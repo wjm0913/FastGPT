@@ -1,5 +1,5 @@
 // FeishuSyncDrawer component (pagesComponent2)
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Button,
   Drawer,
@@ -92,12 +92,25 @@ const FeishuSyncDrawer = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
   const [nodeList, setNodeList] = useState<FeishuNode[]>([]);
   const [isNodeListLoading, setIsNodeListLoading] = useState<boolean>(false);
   const [updatedAt, setUpdatedAt] = useState<string>('');
+  const [syncStatus, setSyncStatus] = useState({
+    isActive: false,
+    progress: 0,
+    currentFile: '',
+    stage: '',
+    totalFiles: 0,
+    finishedFiles: 0
+  });
   const { toast } = useToast();
+  const eventSourceRef = useRef<EventSource | null>(null);
+  const syncStageRef = useRef('');
 
   const bgColor = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
   const hoverBgColor = useColorModeValue('gray.50', 'gray.700');
   const selectedBgColor = useColorModeValue('blue.50', 'blue.900');
+  const cardBgColor = useColorModeValue('white', 'gray.700');
+  const overlayBgColor = useColorModeValue('rgba(0, 0, 40, 0.1)', 'rgba(0, 0, 20, 0.6)');
+  const syncHintColor = useColorModeValue('blue.500', 'blue.200');
 
   // Reset form when drawer is opened
   useEffect(() => {
@@ -189,19 +202,179 @@ const FeishuSyncDrawer = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
       return;
     }
 
-    const response = await GET<FeishuNodeResponse>(
-      '/feishu2/FullSynchronization',
-      {
-        space_id: selectedSpace,
-        refresh: 'true',
-        name: selectedSpaceInfo?.name,
-        intro: selectedSpaceInfo?.description
-      },
-      {
-        timeout: 10000000
+    try {
+      // 关闭之前的连接
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
       }
-    );
-    console.log('知识库节点列表:', response);
+
+      setIsLoading(true);
+      setSyncStatus({
+        isActive: true,
+        progress: 0,
+        currentFile: '准备同步...',
+        stage: 'idle',
+        totalFiles: 0,
+        finishedFiles: 0
+      });
+
+      // 添加时间戳和随机数避免缓存
+      const params = new URLSearchParams({
+        space_id: selectedSpace,
+        name: selectedSpaceInfo?.name || '',
+        intro: selectedSpaceInfo?.description || '',
+        _t: `${Date.now()}-${Math.random()}`
+      });
+
+      const source = new EventSource(`/api/feishu2/FullSynchronization?${params.toString()}`);
+      eventSourceRef.current = source;
+
+      source.onopen = () => {
+        console.log('SSE连接已建立');
+      };
+
+      source.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          console.log('收到同步进度数据:', data);
+
+          // 忽略保活消息
+          if (data.keepAlive) return;
+
+          if (data.error) {
+            // 处理错误
+            toast({
+              status: 'error',
+              title: '同步失败',
+              description: data.error
+            });
+            setSyncStatus((prev) => ({
+              ...prev,
+              isActive: false,
+              stage: 'error'
+            }));
+            source.close();
+            setIsLoading(false);
+            return;
+          }
+
+          if (data.done) {
+            // 处理完成
+            console.log('同步完成:', data);
+            setSyncStatus((prev) => ({
+              ...prev,
+              progress: 100,
+              currentFile: '同步完成!',
+              stage: 'complete',
+              finishedFiles: data.successCount || prev.finishedFiles
+            }));
+
+            toast({
+              status: 'success',
+              title: '同步完成',
+              description: `成功处理 ${data.successCount} 个文件`
+            });
+
+            setTimeout(() => {
+              source.close();
+              setIsLoading(false);
+              setSyncStatus((prev) => ({ ...prev, isActive: false }));
+              setTimeout(() => onClose(), 1500);
+            }, 1000);
+            return;
+          }
+
+          // 更新进度
+          if (data.progressPercent !== undefined) {
+            // 记录当前阶段
+            if (data.stage) {
+              syncStageRef.current = data.stage;
+            }
+
+            // 标准化进度，确保不超过100%
+            const normalizedPercent = Math.min(Math.max(0, Number(data.progressPercent)), 100);
+
+            setSyncStatus((prev) => ({
+              ...prev,
+              progress: normalizedPercent,
+              currentFile: data.currentTitle || prev.currentFile,
+              stage: data.stage || syncStageRef.current || prev.stage,
+              finishedFiles: data.successCount || prev.finishedFiles
+            }));
+          }
+        } catch (error) {
+          console.error('解析SSE消息失败:', error, event.data);
+        }
+      };
+
+      source.onerror = (error) => {
+        console.error('SSE连接错误:', error);
+        toast({
+          status: 'warning',
+          title: '提示',
+          description: '请检查同步日志'
+        });
+        setSyncStatus((prev) => ({
+          ...prev,
+          isActive: false,
+          stage: 'error'
+        }));
+        source.close();
+        setIsLoading(false);
+      };
+    } catch (err) {
+      console.error('同步异常:', err);
+      setIsLoading(false);
+      setSyncStatus((prev) => ({
+        ...prev,
+        isActive: false,
+        stage: 'error'
+      }));
+    }
+  };
+
+  // 组件卸载时关闭EventSource连接
+  useEffect(() => {
+    return () => {
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
+      }
+    };
+  }, []);
+
+  // 根据同步阶段获取颜色
+  const getSyncStageColor = () => {
+    switch (syncStatus.stage) {
+      case 'export':
+      case 'export_save':
+        return 'blue.400';
+      case 'upload':
+        return 'purple.400';
+      case 'complete':
+        return 'green.400';
+      case 'error':
+        return 'red.400';
+      default:
+        return 'gray.400';
+    }
+  };
+
+  // 获取阶段名称
+  const getStageName = () => {
+    switch (syncStatus.stage) {
+      case 'export':
+        return '文档导出';
+      case 'export_save':
+        return '文件保存';
+      case 'upload':
+        return '知识上传';
+      case 'complete':
+        return '同步完成';
+      case 'error':
+        return '同步出错';
+      default:
+        return '准备中';
+    }
   };
 
   // 获取选中的知识库信息
@@ -301,6 +474,7 @@ const FeishuSyncDrawer = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                         h="auto"
                         maxH="110px"
                         overflow="hidden"
+                        position="relative"
                       >
                         <VStack align="start" spacing={1}>
                           <Flex w="full" justifyContent="space-between" alignItems="center">
@@ -333,7 +507,7 @@ const FeishuSyncDrawer = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                     <Heading size="md" mb={4}>
                       知识库详情
                     </Heading>
-                    <Card>
+                    <Card position="relative">
                       <CardBody>
                         <SimpleGrid columns={2} spacing={4}>
                           <Box>
@@ -392,7 +566,139 @@ const FeishuSyncDrawer = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                         </Button>
                       </Flex>
                     </Flex>
-                    <Card>
+                    <Card position="relative">
+                      {/* 这里保留知识库结构水波纹同步效果 */}
+                      {syncStatus.isActive && (
+                        <Box
+                          position="absolute"
+                          top="0"
+                          left="0"
+                          width="100%"
+                          height="100%"
+                          zIndex={2}
+                          pointerEvents="none"
+                        >
+                          {/* 背景蒙层 */}
+                          <Box
+                            position="absolute"
+                            top="0"
+                            left="0"
+                            width="100%"
+                            height="100%"
+                            bg={overlayBgColor}
+                            opacity="0.15"
+                            backdropFilter="blur(1px)"
+                          />
+
+                          {/* 水波纹动画 */}
+                          {Array.from({ length: 3 }).map((_, i) => (
+                            <Box
+                              key={i}
+                              position="absolute"
+                              bottom="0"
+                              left="50%"
+                              width={`${80 + i * 20}%`}
+                              height="15px"
+                              borderRadius="50%"
+                              border="2px solid"
+                              borderColor={getSyncStageColor()}
+                              opacity={0.4 - i * 0.1}
+                              transform={`translate(-50%, ${-syncStatus.progress}%)`}
+                              transition="transform 0.8s ease-out"
+                              _after={{
+                                content: '""',
+                                position: 'absolute',
+                                top: '0',
+                                left: '0',
+                                right: '0',
+                                bottom: '0',
+                                borderRadius: '50%',
+                                animation: `ripple ${2 + i * 0.5}s infinite ease-in-out`,
+                                bg: `${getSyncStageColor()}40`
+                              }}
+                              sx={{
+                                '@keyframes ripple': {
+                                  '0%': { transform: 'scale(1)', opacity: 0.4 },
+                                  '50%': { transform: 'scale(1.08)', opacity: 0.3 },
+                                  '100%': { transform: 'scale(1)', opacity: 0.4 }
+                                }
+                              }}
+                            />
+                          ))}
+
+                          {/* 当前文件标签 */}
+                          <Flex
+                            position="absolute"
+                            bottom="15px"
+                            left="50%"
+                            transform={`translate(-50%, ${-syncStatus.progress}%)`}
+                            transition="transform 0.8s ease-out"
+                            alignItems="center"
+                            justifyContent="center"
+                            bg={cardBgColor}
+                            color={getSyncStageColor()}
+                            borderRadius="full"
+                            boxShadow="0 4px 12px rgba(0,0,0,0.2)"
+                            px={5}
+                            py={2}
+                            minW="300px"
+                            textAlign="center"
+                            borderWidth="2px"
+                            borderColor={getSyncStageColor()}
+                          >
+                            <Box
+                              w="10px"
+                              h="10px"
+                              borderRadius="full"
+                              bg={getSyncStageColor()}
+                              mr={3}
+                              animation="pulse 1.5s infinite"
+                              sx={{
+                                '@keyframes pulse': {
+                                  '0%': { opacity: 0.4, transform: 'scale(0.8)' },
+                                  '50%': { opacity: 1, transform: 'scale(1.2)' },
+                                  '100%': { opacity: 0.4, transform: 'scale(0.8)' }
+                                }
+                              }}
+                            />
+                            <Text fontSize="md" fontWeight="600" isTruncated>
+                              {syncStatus.currentFile || '准备中...'}
+                            </Text>
+                          </Flex>
+
+                          {/* 进度文本 */}
+                          <Flex
+                            position="absolute"
+                            top="15px"
+                            right="15px"
+                            bg={cardBgColor}
+                            borderRadius="lg"
+                            boxShadow="0 4px 8px rgba(0,0,0,0.15)"
+                            p={3}
+                            alignItems="center"
+                          >
+                            <Badge
+                              colorScheme={
+                                syncStatus.stage === 'export' || syncStatus.stage === 'export_save'
+                                  ? 'blue'
+                                  : syncStatus.stage === 'upload'
+                                    ? 'purple'
+                                    : syncStatus.stage === 'complete'
+                                      ? 'green'
+                                      : 'gray'
+                              }
+                              fontSize="md"
+                              px={2}
+                              py={1}
+                            >
+                              {getStageName()}
+                            </Badge>
+                            <Text ml={3} fontWeight="bold" fontSize="lg">
+                              {syncStatus.progress}%
+                            </Text>
+                          </Flex>
+                        </Box>
+                      )}
                       <CardBody maxH={'calc(100vh - 520px)'} overflowY="auto">
                         {isNodeListLoading ? (
                           <Flex justify="center" align="center" h="200px">
@@ -426,8 +732,8 @@ const FeishuSyncDrawer = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
         </DrawerBody>
 
         <DrawerFooter borderTopWidth="1px" p={4}>
-          <Box margin="0 20px">
-            <FormControl isRequired>
+          <Box margin="0 20px" w="full">
+            <FormControl isRequired mb={4}>
               <RadioGroup value={syncMethod} onChange={(val: string) => setSyncMethod(val)}>
                 <HStack spacing={6}>
                   <Radio value="all">全量同步</Radio>
@@ -437,7 +743,6 @@ const FeishuSyncDrawer = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
                 </HStack>
               </RadioGroup>
             </FormControl>
-            {/* 占位符 左右 */}
           </Box>
           <Button variant="outline" mr={3} onClick={onClose} isDisabled={isLoading}>
             取消
@@ -447,7 +752,7 @@ const FeishuSyncDrawer = ({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
             onClick={handleSync}
             isLoading={isLoading}
             loadingText="同步中"
-            isDisabled={!selectedSpace || !syncMethod}
+            isDisabled={!selectedSpace || !syncMethod || syncStatus.isActive}
             size="md"
             px={6}
           >
