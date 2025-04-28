@@ -39,6 +39,7 @@ type document_detailType = {
 };
 
 // 飞书知识库节点组件
+// eslint-disable-next-line react/display-name
 const TreeNode = React.memo(
   ({ node, level = 0, updatedAt }: { node: FeishuNode; level?: number; updatedAt: string }) => {
     const [isExpanded, setIsExpanded] = useState(level < 1);
@@ -157,7 +158,7 @@ const TreeNode = React.memo(
         {isExpanded && node.children && node.children.length > 0 && (
           <VStack align="stretch" mt={1} spacing={0}>
             {node.children.map((child) => (
-              <TreeNode key={child.node_token} node={child} level={level + 1} />
+              <TreeNode key={child.node_token} node={child} level={level + 1} updatedAt={''} />
             ))}
           </VStack>
         )}
